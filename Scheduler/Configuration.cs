@@ -39,4 +39,23 @@ namespace Scheduler
         }
 
     }
+
+    public class DailyFrecuency
+    {
+        public Enumerations.Type Type { get; set; }
+
+        public TimeSpan TimeFrecuency { get; set; }
+        public int OccurrenceAmount { get; set; }
+
+        public TimeSpan TimeStart { get; set; }
+        public TimeSpan TimeEnd { get; set; }
+
+    }
+
+    public class WeeklyConfiguration
+    {
+        public int WeekAmount { get; set; }
+        public Enumerations.Weekday[] WeekDays { get; set; }
+    }
+
 }
