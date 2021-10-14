@@ -38,14 +38,18 @@ namespace Scheduler
             }
         }
 
+        public DailyFrecuency DailyFrecuencyConfiguration { get; set; }
+
+
+
     }
 
     public class DailyFrecuency
     {
         public Enumerations.Type Type { get; set; }
-
         public TimeSpan TimeFrecuency { get; set; }
         public int OccurrenceAmount { get; set; }
+        public Enumerations.DailyOccurrence DailyOccurrence { get; set; }
 
         public TimeSpan TimeStart { get; set; }
         public TimeSpan TimeEnd { get; set; }

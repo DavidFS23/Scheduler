@@ -35,23 +35,63 @@ namespace Scheduler
                 throw new ArgumentNullException("The parameter Configuration should not be null.");
             }
             CalculationResult TheCalculation = new CalculationResult();
-            TheCalculation.NextExecutionTime = Scheduler.CalculateExecutionTime(TheConfiguration.Occurrence, TheConfiguration.OccurrenceAmount, TheConfiguration.CurrentDate);
+            TheCalculation.NextExecutionTime = Scheduler.CalculateExecutionTime(TheConfiguration.Occurrence, TheConfiguration.OccurrenceAmount, TheConfiguration.CurrentDate, TheConfiguration.DailyFrecuencyConfiguration);
             TheCalculation.Description = Scheduler.CalculateDescription(TheConfiguration.Type, TheCalculation.NextExecutionTime, TheConfiguration.DateTime, TheConfiguration.LimitStartDate, TheConfiguration.LimitEndDate);
             return TheCalculation;
         }
 
-        private static DateTime CalculateExecutionTime(Occurrence TheOccurrence, int TheOccurenceAmount, DateTime TheCurrentDate)
+        private static DateTime CalculateExecutionTime(Occurrence TheOccurrence, int TheOccurenceAmount, DateTime TheCurrentDate, DailyFrecuency DailyFrecuencyConfiguration)
         {
+            DateTime CurrentDate = TheCurrentDate;
+            bool IsLastDailyFrecuency = false;
+            if (DailyFrecuencyConfiguration != null)
+            {
+                switch (DailyFrecuencyConfiguration.Type)
+                {
+                    case Enumerations.Type.Recurring:
+                        switch (DailyFrecuencyConfiguration.DailyOccurrence)
+                        {
+                            case DailyOccurrence.Seconds:
+                                CurrentDate = CurrentDate.AddSeconds(DailyFrecuencyConfiguration.OccurrenceAmount);
+                                break;
+                            case DailyOccurrence.Minutes:
+                                CurrentDate = CurrentDate.AddSeconds(DailyFrecuencyConfiguration.OccurrenceAmount * 60);
+                                break;
+                            case DailyOccurrence.Hours:
+                            default:
+                                CurrentDate = CurrentDate.AddHours(DailyFrecuencyConfiguration.OccurrenceAmount);
+                                break;
+                        }
+                        break;
+                    case Enumerations.Type.Once:
+                    default:
+                        CurrentDate = new DateTime(CurrentDate.Year, CurrentDate.Month, CurrentDate.Day, DailyFrecuencyConfiguration.TimeFrecuency.Hours, DailyFrecuencyConfiguration.TimeFrecuency.Minutes, DailyFrecuencyConfiguration.TimeFrecuency.Seconds);
+                        break;
+                }
+            }
+            else
+            {
+                IsLastDailyFrecuency = true;
+            }
+            if (Scheduler.IsLastTime(CurrentDate, DailyFrecuencyConfiguration.TimeEnd))
+            {
+                IsLastDailyFrecuency = true;
+            }
+            if (IsLastDailyFrecuency == false) { return CurrentDate; }
             switch (TheOccurrence)
             {
                 case Occurrence.Monthly:
-                    return TheCurrentDate.AddMonths(TheOccurenceAmount);
+                    CurrentDate = CurrentDate.AddMonths(TheOccurenceAmount);
+                    break;
                 case Occurrence.Weekly:
-                    return TheCurrentDate.AddDays(TheOccurenceAmount * 7);
+                    CurrentDate = CurrentDate.AddDays(TheOccurenceAmount * 7);
+                    break;
                 case Occurrence.Daily:
                 default:
-                    return TheCurrentDate.AddDays(TheOccurenceAmount);
+                    CurrentDate = CurrentDate.AddDays(TheOccurenceAmount);
+                    break;
             }
+            return CurrentDate;
         }
 
         public static string CalculateDescription(Enumerations.Type TheType, DateTime TheNextExecutionTime, DateTime? TheDateTime, DateTime? TheLimitStartDate, DateTime? TheLimitEndDate)
@@ -95,6 +135,14 @@ namespace Scheduler
             {
                 throw new ArgumentNullException("If the configuration is Recurring, you should add Limit End Date.");
             }
+
+            // Validar que si tiene Daily Frecuencia con Occurs Every X hours, tiene que tener fecha de inicio y fecha fin.
+        }
+
+        private static bool IsLastTime(DateTime TheDateTime, TimeSpan TheTime)
+        {
+            TimeSpan TheTimeOfDateTime = new TimeSpan(TheDateTime.Hour, TheDateTime.Minute, TheDateTime.Second);
+            return TheTimeOfDateTime >= TheTime;
         }
 
     }

@@ -215,5 +215,56 @@ namespace Scheduler.Tests.xUnit
             Assert.Single(TheResults);
         }
 
+        [Fact]
+        public void DAILYFRECUENCY_OCURS_ONCE()
+        {
+            DateTime TheDateTime = new DateTime(2021, 1, 1);
+            Configuration TheConfiguration = new Configuration();
+
+            TheConfiguration.CurrentDate = TheDateTime;
+            TheConfiguration.Type = Enumerations.Type.Once;
+            TheConfiguration.OccurrenceAmount = 2;
+
+            TheConfiguration.DailyFrecuencyConfiguration = new DailyFrecuency();
+            TheConfiguration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Once;
+            TheConfiguration.DailyFrecuencyConfiguration.TimeFrecuency = new TimeSpan(14, 30, 0);
+
+            CalculationResult[] TheResult = Scheduler.GenerateDates(TheConfiguration);
+            Assert.Single(TheResult);
+            Assert.Equal(TheResult[0].NextExecutionTime, new DateTime(2021, 1, 3, 14, 30, 0));
+        }
+
+        [Fact]
+        public void DAILYFRECUENCY_OCURS_EVERY_X_HOURS()
+        {
+            DateTime TheDateTime = new DateTime(2021, 1, 1);
+            Configuration TheConfiguration = new Configuration();
+
+            TheConfiguration.CurrentDate = TheDateTime;
+            TheConfiguration.Type = Enumerations.Type.Recurring;
+            TheConfiguration.Occurrence = Enumerations.Occurrence.Daily;
+            TheConfiguration.OccurrenceAmount = 2;
+            TheConfiguration.LimitEndDate = new DateTime(2021, 1, 10);
+
+            TheConfiguration.DailyFrecuencyConfiguration = new DailyFrecuency();
+            TheConfiguration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
+            TheConfiguration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
+            TheConfiguration.DailyFrecuencyConfiguration.OccurrenceAmount = 2;
+            TheConfiguration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(13, 0, 0);
+            TheConfiguration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(17, 0, 0);
+
+            CalculationResult[] TheResult = Scheduler.GenerateDates(TheConfiguration);
+            Assert.Single(TheResult);
+            Assert.Equal(TheResult[0].NextExecutionTime, new DateTime(2021, 1, 3, 14, 30, 0));
+            Assert.Equal(TheResult[1].NextExecutionTime, new DateTime(2021, 1, 3, 16, 30, 0));
+            Assert.Equal(TheResult[2].NextExecutionTime, new DateTime(2021, 1, 5, 14, 30, 0));
+            Assert.Equal(TheResult[3].NextExecutionTime, new DateTime(2021, 1, 5, 16, 30, 0));
+        }
+
+        //[Fact]
+        //public void VALIDATE_DAILYFRECUENCY_CONFIGURATION()
+        //{
+
+        //}
     }
 }
