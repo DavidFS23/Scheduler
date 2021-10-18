@@ -8,24 +8,10 @@ namespace Scheduler
     public class Scheduler
     {
 
-        public static CalculationResult[] GenerateDates(Configuration TheConfiguration)
+        public static CalculationResult GenerateDate(Configuration TheConfiguration)
         {
             Scheduler.ValidateConfiguration(TheConfiguration);
-            switch (TheConfiguration.Type)
-            {
-                case Enumerations.Type.Recurring:
-                    List<CalculationResult> TheDates = new List<CalculationResult>();
-                    int NumberOfDates = TheConfiguration.NumberOfDates;
-                    for (int i = 0; i < NumberOfDates; i++)
-                    {
-                        TheDates.Add(Scheduler.CalculateNextDate(TheConfiguration));
-                        TheConfiguration.CurrentDate = TheDates.Last().NextExecutionTime;
-                    }
-                    return TheDates.ToArray();
-                case Enumerations.Type.Once:
-                default:
-                    return new CalculationResult[] { Scheduler.CalculateNextDate(TheConfiguration) };
-            }
+            return Scheduler.CalculateNextDate(TheConfiguration);
         }
 
         private static CalculationResult CalculateNextDate(Configuration TheConfiguration)
@@ -42,56 +28,62 @@ namespace Scheduler
 
         private static DateTime CalculateExecutionTime(Occurrence TheOccurrence, int TheOccurenceAmount, DateTime TheCurrentDate, DailyFrecuency DailyFrecuencyConfiguration)
         {
-            DateTime CurrentDate = TheCurrentDate;
-            bool IsLastDailyFrecuency = false;
+            DateTime TheNewDate = TheCurrentDate;
+            TimeSpan TheOriginalTime = new TimeSpan(TheNewDate.Hour, TheNewDate.Minute, TheNewDate.Second);
             if (DailyFrecuencyConfiguration != null)
             {
+                TimeSpan LaHora = new TimeSpan(TheNewDate.Hour, TheNewDate.Minute, TheNewDate.Second);
+                if (LaHora < DailyFrecuencyConfiguration.TimeStart)
+                {
+                    LaHora = DailyFrecuencyConfiguration.TimeStart;
+                    return new DateTime(TheCurrentDate.Year, TheCurrentDate.Month, TheCurrentDate.Day, LaHora.Hours, LaHora.Minutes, LaHora.Seconds);
+                }
                 switch (DailyFrecuencyConfiguration.Type)
                 {
                     case Enumerations.Type.Recurring:
                         switch (DailyFrecuencyConfiguration.DailyOccurrence)
                         {
                             case DailyOccurrence.Seconds:
-                                CurrentDate = CurrentDate.AddSeconds(DailyFrecuencyConfiguration.OccurrenceAmount);
+                                TheNewDate = TheCurrentDate.AddSeconds(DailyFrecuencyConfiguration.OccurrenceAmount);
                                 break;
                             case DailyOccurrence.Minutes:
-                                CurrentDate = CurrentDate.AddSeconds(DailyFrecuencyConfiguration.OccurrenceAmount * 60);
+                                TheNewDate = TheCurrentDate.AddSeconds(DailyFrecuencyConfiguration.OccurrenceAmount * 60);
                                 break;
                             case DailyOccurrence.Hours:
                             default:
-                                CurrentDate = CurrentDate.AddHours(DailyFrecuencyConfiguration.OccurrenceAmount);
+                                TheNewDate = TheCurrentDate.AddHours(DailyFrecuencyConfiguration.OccurrenceAmount);
                                 break;
+                        }
+                        LaHora = new TimeSpan(TheNewDate.Hour, TheNewDate.Minute, TheNewDate.Second);
+                        if (LaHora <= DailyFrecuencyConfiguration.TimeEnd)
+                        {
+                            return TheNewDate;
+                        }
+                        else
+                        {
+                            TheNewDate = new DateTime(TheNewDate.Year, TheNewDate.Month, TheNewDate.Day, DailyFrecuencyConfiguration.TimeStart.Hours, DailyFrecuencyConfiguration.TimeStart.Minutes, DailyFrecuencyConfiguration.TimeStart.Seconds);
                         }
                         break;
                     case Enumerations.Type.Once:
                     default:
-                        CurrentDate = new DateTime(CurrentDate.Year, CurrentDate.Month, CurrentDate.Day, DailyFrecuencyConfiguration.TimeFrecuency.Hours, DailyFrecuencyConfiguration.TimeFrecuency.Minutes, DailyFrecuencyConfiguration.TimeFrecuency.Seconds);
+                        TheNewDate = new DateTime(TheCurrentDate.Year, TheCurrentDate.Month, TheCurrentDate.Day, DailyFrecuencyConfiguration.TimeFrecuency.Hours, DailyFrecuencyConfiguration.TimeFrecuency.Minutes, DailyFrecuencyConfiguration.TimeFrecuency.Seconds);
                         break;
                 }
             }
-            else
-            {
-                IsLastDailyFrecuency = true;
-            }
-            if (Scheduler.IsLastTime(CurrentDate, DailyFrecuencyConfiguration.TimeEnd))
-            {
-                IsLastDailyFrecuency = true;
-            }
-            if (IsLastDailyFrecuency == false) { return CurrentDate; }
             switch (TheOccurrence)
             {
                 case Occurrence.Monthly:
-                    CurrentDate = CurrentDate.AddMonths(TheOccurenceAmount);
+                    TheNewDate = TheNewDate.AddMonths(TheOccurenceAmount);
                     break;
                 case Occurrence.Weekly:
-                    CurrentDate = CurrentDate.AddDays(TheOccurenceAmount * 7);
+                    TheNewDate = TheNewDate.AddDays(TheOccurenceAmount * 7);
                     break;
                 case Occurrence.Daily:
                 default:
-                    CurrentDate = CurrentDate.AddDays(TheOccurenceAmount);
+                    TheNewDate = TheNewDate.AddDays(TheOccurenceAmount);
                     break;
             }
-            return CurrentDate;
+            return TheNewDate;
         }
 
         public static string CalculateDescription(Enumerations.Type TheType, DateTime TheNextExecutionTime, DateTime? TheDateTime, DateTime? TheLimitStartDate, DateTime? TheLimitEndDate)
@@ -137,12 +129,6 @@ namespace Scheduler
             }
 
             // Validar que si tiene Daily Frecuencia con Occurs Every X hours, tiene que tener fecha de inicio y fecha fin.
-        }
-
-        private static bool IsLastTime(DateTime TheDateTime, TimeSpan TheTime)
-        {
-            TimeSpan TheTimeOfDateTime = new TimeSpan(TheDateTime.Hour, TheDateTime.Minute, TheDateTime.Second);
-            return TheTimeOfDateTime >= TheTime;
         }
 
     }
