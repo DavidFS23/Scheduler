@@ -21,22 +21,56 @@ namespace Scheduler
                 throw new ArgumentNullException("The parameter Configuration should not be null.");
             }
             CalculationResult TheCalculation = new CalculationResult();
-            TheCalculation.NextExecutionTime = Scheduler.CalculateExecutionTime(TheConfiguration.Occurrence, TheConfiguration.OccurrenceAmount, TheConfiguration.CurrentDate, TheConfiguration.DailyFrecuencyConfiguration);
+            TheCalculation.NextExecutionTime = Scheduler.CalculateExecutionTime(TheConfiguration.Occurrence, TheConfiguration.OccurrenceAmount, TheConfiguration.CurrentDate, TheConfiguration.DailyFrecuencyConfiguration, TheConfiguration.WeeklyConfiguration);
             TheCalculation.Description = Scheduler.CalculateDescription(TheConfiguration.Type, TheCalculation.NextExecutionTime, TheConfiguration.DateTime, TheConfiguration.LimitStartDate, TheConfiguration.LimitEndDate);
             return TheCalculation;
         }
+        
+        private static Weekday GetNextWeekDay(Weekday[] TheDays, DateTime TheDate)
+        {
+            if (TheDays == null || TheDays.Length == 0) { throw new ArgumentException("You should add Weekdays to get the next weekday."); }
+            if (TheDate == null) { throw new ArgumentNullException(); }
+            while (true)
+            {
+                foreach(Weekday TheWeekDay in TheDays)
+                {
+                    if (TheWeekDay == WeeklyConfiguration.GetWeekDay(TheDate.DayOfWeek))
+                    {
+                        return TheWeekDay;
+                    }
+                }
+                TheDate = TheDate.AddDays(1);
+            }
+        }
 
-        private static DateTime CalculateExecutionTime(Occurrence TheOccurrence, int TheOccurenceAmount, DateTime TheCurrentDate, DailyFrecuency DailyFrecuencyConfiguration)
+        private static DateTime CalculateExecutionTime(Occurrence TheOccurrence, int TheOccurenceAmount, DateTime TheCurrentDate, DailyFrecuency DailyFrecuencyConfiguration, WeeklyConfiguration WeeklyConfiguration)
         {
             DateTime TheNewDate = TheCurrentDate;
-            TimeSpan TheOriginalTime = new TimeSpan(TheNewDate.Hour, TheNewDate.Minute, TheNewDate.Second);
+            if (WeeklyConfiguration != null && WeeklyConfiguration.WeekDays != null)
+            {
+                while ((int)WeeklyConfiguration.GetWeekDay(TheNewDate.DayOfWeek) < (int)GetNextWeekDay(WeeklyConfiguration.WeekDays, TheNewDate))
+                {
+                    TheNewDate = TheNewDate.AddDays(1);
+                }
+
+                if (WeeklyConfiguration.WeekDays.Contains(WeeklyConfiguration.GetWeekDay(TheNewDate.DayOfWeek)) == false && 
+                    WeeklyConfiguration.GetWeekDay(TheNewDate.DayOfWeek) < WeeklyConfiguration.WeekDays.Last())
+                {
+                    DateTime TheNextDate = TheNewDate;
+                    while (WeeklyConfiguration.GetWeekDay(TheNewDate.DayOfWeek) != WeeklyConfiguration.WeekDays.First())
+                    {
+                        TheNewDate = TheNextDate.AddDays(1);
+                    }
+                    TheNewDate = TheNextDate;
+                }
+            }
             if (DailyFrecuencyConfiguration != null)
             {
                 TimeSpan LaHora = new TimeSpan(TheNewDate.Hour, TheNewDate.Minute, TheNewDate.Second);
                 if (LaHora < DailyFrecuencyConfiguration.TimeStart)
                 {
                     LaHora = DailyFrecuencyConfiguration.TimeStart;
-                    return new DateTime(TheCurrentDate.Year, TheCurrentDate.Month, TheCurrentDate.Day, LaHora.Hours, LaHora.Minutes, LaHora.Seconds);
+                    return new DateTime(TheNewDate.Year, TheNewDate.Month, TheNewDate.Day, LaHora.Hours, LaHora.Minutes, LaHora.Seconds);
                 }
                 switch (DailyFrecuencyConfiguration.Type)
                 {
@@ -44,14 +78,14 @@ namespace Scheduler
                         switch (DailyFrecuencyConfiguration.DailyOccurrence)
                         {
                             case DailyOccurrence.Seconds:
-                                TheNewDate = TheCurrentDate.AddSeconds(DailyFrecuencyConfiguration.OccurrenceAmount);
+                                TheNewDate = TheNewDate.AddSeconds(DailyFrecuencyConfiguration.OccurrenceAmount);
                                 break;
                             case DailyOccurrence.Minutes:
-                                TheNewDate = TheCurrentDate.AddSeconds(DailyFrecuencyConfiguration.OccurrenceAmount * 60);
+                                TheNewDate = TheNewDate.AddSeconds(DailyFrecuencyConfiguration.OccurrenceAmount * 60);
                                 break;
                             case DailyOccurrence.Hours:
                             default:
-                                TheNewDate = TheCurrentDate.AddHours(DailyFrecuencyConfiguration.OccurrenceAmount);
+                                TheNewDate = TheNewDate.AddHours(DailyFrecuencyConfiguration.OccurrenceAmount);
                                 break;
                         }
                         LaHora = new TimeSpan(TheNewDate.Hour, TheNewDate.Minute, TheNewDate.Second);
@@ -66,7 +100,7 @@ namespace Scheduler
                         break;
                     case Enumerations.Type.Once:
                     default:
-                        TheNewDate = new DateTime(TheCurrentDate.Year, TheCurrentDate.Month, TheCurrentDate.Day, DailyFrecuencyConfiguration.TimeFrecuency.Hours, DailyFrecuencyConfiguration.TimeFrecuency.Minutes, DailyFrecuencyConfiguration.TimeFrecuency.Seconds);
+                        TheNewDate = new DateTime(TheNewDate.Year, TheNewDate.Month, TheNewDate.Day, DailyFrecuencyConfiguration.TimeFrecuency.Hours, DailyFrecuencyConfiguration.TimeFrecuency.Minutes, DailyFrecuencyConfiguration.TimeFrecuency.Seconds);
                         break;
                 }
             }
@@ -83,6 +117,7 @@ namespace Scheduler
                     TheNewDate = TheNewDate.AddDays(TheOccurenceAmount);
                     break;
             }
+            
             return TheNewDate;
         }
 
