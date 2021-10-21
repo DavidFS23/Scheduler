@@ -59,7 +59,7 @@ namespace Scheduler
 
     public class WeeklyConfiguration
     {
-        //public int WeekAmount { get; set; }
+        public int WeekAmount { get; set; }
 
         private Enumerations.Weekday[] weekDays;
         public Enumerations.Weekday[] WeekDays 

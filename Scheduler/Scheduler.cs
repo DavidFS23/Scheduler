@@ -46,24 +46,15 @@ namespace Scheduler
         private static DateTime CalculateExecutionTime(Occurrence TheOccurrence, int TheOccurenceAmount, DateTime TheCurrentDate, DailyFrecuency DailyFrecuencyConfiguration, WeeklyConfiguration WeeklyConfiguration)
         {
             DateTime TheNewDate = TheCurrentDate;
+
             if (WeeklyConfiguration != null && WeeklyConfiguration.WeekDays != null)
             {
                 while ((int)WeeklyConfiguration.GetWeekDay(TheNewDate.DayOfWeek) < (int)GetNextWeekDay(WeeklyConfiguration.WeekDays, TheNewDate))
                 {
                     TheNewDate = TheNewDate.AddDays(1);
                 }
-
-                if (WeeklyConfiguration.WeekDays.Contains(WeeklyConfiguration.GetWeekDay(TheNewDate.DayOfWeek)) == false && 
-                    WeeklyConfiguration.GetWeekDay(TheNewDate.DayOfWeek) < WeeklyConfiguration.WeekDays.Last())
-                {
-                    DateTime TheNextDate = TheNewDate;
-                    while (WeeklyConfiguration.GetWeekDay(TheNewDate.DayOfWeek) != WeeklyConfiguration.WeekDays.First())
-                    {
-                        TheNewDate = TheNextDate.AddDays(1);
-                    }
-                    TheNewDate = TheNextDate;
-                }
             }
+
             if (DailyFrecuencyConfiguration != null)
             {
                 TimeSpan LaHora = new TimeSpan(TheNewDate.Hour, TheNewDate.Minute, TheNewDate.Second);
@@ -104,6 +95,7 @@ namespace Scheduler
                         break;
                 }
             }
+
             switch (TheOccurrence)
             {
                 case Occurrence.Monthly:
@@ -117,7 +109,26 @@ namespace Scheduler
                     TheNewDate = TheNewDate.AddDays(TheOccurenceAmount);
                     break;
             }
-            
+
+            if (WeeklyConfiguration != null)
+            {
+                if (WeeklyConfiguration.WeekDays != null)
+                {
+                    while ((int)WeeklyConfiguration.GetWeekDay(TheNewDate.DayOfWeek) < (int)GetNextWeekDay(WeeklyConfiguration.WeekDays, TheNewDate))
+                    {
+                        TheNewDate = TheNewDate.AddDays(1);
+                    }
+                }
+
+                if (WeeklyConfiguration.WeekAmount != 0 && WeeklyConfiguration.GetWeekDay(TheNewDate.DayOfWeek) > WeeklyConfiguration.WeekDays.Last())
+                {
+                    TheNewDate = TheNewDate.AddDays(WeeklyConfiguration.WeekAmount * 7);
+                    while (WeeklyConfiguration.GetWeekDay(TheNewDate.DayOfWeek) != WeeklyConfiguration.WeekDays.First())
+                    {
+                        TheNewDate = TheNewDate.AddDays(-1);
+                    }
+                }
+            }
             return TheNewDate;
         }
 
