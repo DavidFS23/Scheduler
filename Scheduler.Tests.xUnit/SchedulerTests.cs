@@ -27,7 +27,11 @@ namespace Scheduler.Tests.xUnit
         [Fact]
         public void CALCULATE_DESCRIPTION_WITHOUT_LIMIT_DATES()
         {
-            string TheDescription = Scheduler.CalculateDescription(Enumerations.Type.Once, new DateTime(2021, 1, 1, 14, 0, 0), null, null, null);
+            DateTime TheDateTime = new DateTime(2021, 1, 1, 14, 0, 0);
+            Configuration TheConfiguration = new Configuration();
+            TheConfiguration.CurrentDate = TheDateTime;
+            TheConfiguration.Type = Enumerations.Type.Once;
+            string TheDescription = Scheduler.CalculateDescription(TheConfiguration.CurrentDate, TheConfiguration.Type, new DateTime(2021, 1, 1, 14, 0, 0), null, TheConfiguration.LimitStartDate, TheConfiguration.LimitEndDate, TheConfiguration.WeeklyConfiguration, TheConfiguration.DailyFrecuencyConfiguration);
             string ExpectedText = "Occurs once. Schedule will be used on 01/01/2021 at 14:00";
             Assert.Equal(ExpectedText, TheDescription);
         }
@@ -35,13 +39,45 @@ namespace Scheduler.Tests.xUnit
         [Fact]
         public void CALCULATE_DESCRIPTION_WITH_LIMIT_DATES()
         {
-            string TheDescription = Scheduler.CalculateDescription(
-                Enumerations.Type.Recurring, 
-                new DateTime(2021, 1, 1, 14, 0, 0), 
-                new DateTime(2021, 1, 5, 16, 0, 0), 
-                new DateTime(2021, 1, 20, 18, 0, 0),
-                new DateTime(2021, 1, 25, 20, 0, 0));
+            DateTime TheDateTime = new DateTime(2021, 1, 5, 16, 0, 0);
+            Configuration TheConfiguration = new Configuration();
+            TheConfiguration.CurrentDate = TheDateTime;
+            TheConfiguration.Type = Enumerations.Type.Recurring;
+            TheConfiguration.LimitStartDate = new DateTime(2021, 1, 20);
+            TheConfiguration.LimitEndDate = new DateTime(2021, 1, 25);
+            string TheDescription = Scheduler.CalculateDescription(TheConfiguration.CurrentDate, TheConfiguration.Type, TheDateTime, null, TheConfiguration.LimitStartDate, TheConfiguration.LimitEndDate, TheConfiguration.WeeklyConfiguration, TheConfiguration.DailyFrecuencyConfiguration);
             string ExpectedText = "Occurs every day. Schedule will be used on 05/01/2021 at 16:00 starting on 20/01/2021 ending on 25/01/2021";
+            Assert.Equal(ExpectedText, TheDescription);
+        }
+
+        [Theory]
+        [InlineData(Enumerations.DailyOccurrence.Hours)]
+        [InlineData(Enumerations.DailyOccurrence.Minutes)]
+        [InlineData(Enumerations.DailyOccurrence.Seconds)]
+        public void CALCULATE_DESCRIPTION_WITH_WEEKLY_CONFIGURATION_AND_DAILY_FRECUENCY(Enumerations.DailyOccurrence TheOccurrenceType)
+        {
+            DateTime TheDateTime = new DateTime(2020, 1, 1);
+            Configuration TheConfiguration = new Configuration();
+
+            TheConfiguration.CurrentDate = TheDateTime;
+            TheConfiguration.Type = Enumerations.Type.Recurring;
+            TheConfiguration.OccurrenceAmount = 1;
+            TheConfiguration.Occurrence = Enumerations.Occurrence.Daily;
+            TheConfiguration.LimitEndDate = new DateTime(2099, 1, 1);
+
+            TheConfiguration.DailyFrecuencyConfiguration = new DailyFrecuency();
+            TheConfiguration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
+            TheConfiguration.DailyFrecuencyConfiguration.DailyOccurrence = TheOccurrenceType;
+            TheConfiguration.DailyFrecuencyConfiguration.OccurrenceAmount = 2;
+            TheConfiguration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(4, 0, 0);
+            TheConfiguration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(8, 0, 0);
+
+            TheConfiguration.WeeklyConfiguration = new WeeklyConfiguration();
+            TheConfiguration.WeeklyConfiguration.WeekDays = new Enumerations.Weekday[] { Enumerations.Weekday.Monday, Enumerations.Weekday.Thursday, Enumerations.Weekday.Friday };
+            TheConfiguration.WeeklyConfiguration.WeekAmount = 2;
+
+            string TheDescription = Scheduler.CalculateDescription(TheConfiguration.CurrentDate, TheConfiguration.Type, TheDateTime, null, TheConfiguration.LimitStartDate, TheConfiguration.LimitEndDate, TheConfiguration.WeeklyConfiguration, TheConfiguration.DailyFrecuencyConfiguration);
+            string ExpectedText = $"Occurs every 2 weeks on monday, thursday and friday every 2 {TheOccurrenceType.ToString().ToLower()} between 4:00 am and 8:00 am starting on 01/01/2020";
             Assert.Equal(ExpectedText, TheDescription);
         }
 
@@ -462,6 +498,44 @@ namespace Scheduler.Tests.xUnit
             Assert.Equal(TheResult32.NextExecutionTime, new DateTime(2020, 2, 14, 6, 0, 0));
             Assert.Equal(TheResult33.NextExecutionTime, new DateTime(2020, 2, 14, 8, 0, 0));
             #endregion
+        }
+
+        [Theory]
+        [InlineData(DayOfWeek.Monday)]
+        [InlineData(DayOfWeek.Tuesday)]
+        [InlineData(DayOfWeek.Wednesday)]
+        [InlineData(DayOfWeek.Thursday)]
+        [InlineData(DayOfWeek.Friday)]
+        [InlineData(DayOfWeek.Saturday)]
+        [InlineData(DayOfWeek.Sunday)]
+        public void GETWEEKDAY_METHOD_TEST(DayOfWeek TheDayOfWeek)
+        {
+            var TheWeekDay = WeeklyConfiguration.GetWeekDay(TheDayOfWeek);
+            switch (TheDayOfWeek)
+            {
+                case DayOfWeek.Monday:
+                    Assert.Equal(Enumerations.Weekday.Monday, TheWeekDay);
+                    break;
+                case DayOfWeek.Tuesday:
+                    Assert.Equal(Enumerations.Weekday.Tuesday, TheWeekDay);
+                    break;
+                case DayOfWeek.Wednesday:
+                    Assert.Equal(Enumerations.Weekday.Wednesday, TheWeekDay);
+                    break;
+                case DayOfWeek.Thursday:
+                    Assert.Equal(Enumerations.Weekday.Thursday, TheWeekDay);
+                    break;
+                case DayOfWeek.Friday:
+                    Assert.Equal(Enumerations.Weekday.Friday, TheWeekDay);
+                    break;
+                case DayOfWeek.Saturday:
+                    Assert.Equal(Enumerations.Weekday.Saturday, TheWeekDay);
+                    break;
+                case DayOfWeek.Sunday:
+                default:
+                    Assert.Equal(Enumerations.Weekday.Sunday, TheWeekDay);
+                    break;
+            }
         }
 
     }

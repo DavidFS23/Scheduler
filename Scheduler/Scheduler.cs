@@ -22,7 +22,15 @@ namespace Scheduler
             }
             CalculationResult TheCalculation = new CalculationResult();
             TheCalculation.NextExecutionTime = Scheduler.CalculateExecutionTime(TheConfiguration.Occurrence, TheConfiguration.OccurrenceAmount, TheConfiguration.CurrentDate, TheConfiguration.DailyFrecuencyConfiguration, TheConfiguration.WeeklyConfiguration);
-            TheCalculation.Description = Scheduler.CalculateDescription(TheConfiguration.Type, TheCalculation.NextExecutionTime, TheConfiguration.DateTime, TheConfiguration.LimitStartDate, TheConfiguration.LimitEndDate);
+            TheCalculation.Description = Scheduler.CalculateDescription(
+                TheConfiguration.CurrentDate, 
+                TheConfiguration.Type, 
+                TheCalculation.NextExecutionTime, 
+                TheConfiguration.DateTime, 
+                TheConfiguration.LimitStartDate, 
+                TheConfiguration.LimitEndDate, 
+                TheConfiguration.WeeklyConfiguration, 
+                TheConfiguration.DailyFrecuencyConfiguration);
             return TheCalculation;
         }
         
@@ -132,35 +140,88 @@ namespace Scheduler
             return TheNewDate;
         }
 
-        public static string CalculateDescription(Enumerations.Type TheType, DateTime TheNextExecutionTime, DateTime? TheDateTime, DateTime? TheLimitStartDate, DateTime? TheLimitEndDate)
+        public static string CalculateDescription(DateTime TheCurrentDate, Enumerations.Type TheType, DateTime TheNextExecutionTime, DateTime? TheDateTime, DateTime? TheLimitStartDate, DateTime? TheLimitEndDate, WeeklyConfiguration TheWeeklyConfiguration, DailyFrecuency TheDailyFrecuency)
         {
+            //  Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00 am and 8:00 am starting on 01/01/2020
             string TheDescription = string.Empty;
-            switch (TheType)
+            if (TheWeeklyConfiguration != null)
             {
-                case Enumerations.Type.Once:
-                    TheDescription += "Occurs once. ";
-                    break;
-                case Enumerations.Type.Recurring:
-                    TheDescription += "Occurs every day. ";
-                    break;
+                TheDescription += $"Occurs every {TheWeeklyConfiguration.WeekAmount} weeks ";
+                bool FirstPrinted = true;
+                foreach (Enumerations.Weekday WeekDay in TheWeeklyConfiguration.WeekDays)
+                {
+                    string TheSeparator = (WeekDay == TheWeeklyConfiguration.WeekDays.Last() ? " and " : ", ");
+                    TheDescription += (FirstPrinted == false ? TheSeparator : "on ") + WeekDay.ToString().ToLower();
+                    if (FirstPrinted)
+                    {
+                        FirstPrinted = false;
+                    }
+                    
+                }
+                if (TheWeeklyConfiguration.WeekDays.Length > 0) { TheDescription += " "; }
             }
+            else
+            {
+                switch (TheType)
+                {
+                    case Enumerations.Type.Once:
+                        TheDescription += "Occurs once. ";
+                        break;
+                    case Enumerations.Type.Recurring:
+                        TheDescription += "Occurs every day. ";
+                        break;
+                }
+                DateTime UsedDate = TheNextExecutionTime;
+                if (TheDateTime.HasValue)
+                {
+                    UsedDate = TheDateTime.Value;
+                }
 
-            DateTime UsedDate = TheNextExecutionTime;
-            if (TheDateTime.HasValue)
-            {
-                UsedDate = TheDateTime.Value;
+                TheDescription += $"Schedule will be used on {UsedDate.ToShortDateString()} at {UsedDate.ToString("HH:mm")} ";
+                if (TheLimitStartDate.HasValue)
+                {
+                    TheDescription += $"starting on {TheLimitStartDate.Value.ToShortDateString()} ";
+                }
+                if (TheLimitEndDate.HasValue)
+                {
+                    TheDescription += $"ending on {TheLimitEndDate.Value.ToShortDateString()} ";
+                }
             }
+            if (TheDailyFrecuency != null)
+            {
+                if (TheDailyFrecuency.OccurrenceAmount != 0)
+                {
+                    TheDescription += $"every {TheDailyFrecuency.OccurrenceAmount} {TheDailyFrecuency.DailyOccurrence.ToString().ToLower()} ";
+                }
+                switch (TheDailyFrecuency.Type)
+                {
+                    case Enumerations.Type.Recurring:
+                        DateTime TimeStartDT = DateTime.Today.Add(TheDailyFrecuency.TimeStart);
+                        string TimeStartStr = Scheduler.DeleteFirstZero(TimeStartDT.ToString("hh:mm tt").ToLower());
+                        DateTime TimeEndDT = DateTime.Today.Add(TheDailyFrecuency.TimeEnd);
+                        string TimeEndStr = Scheduler.DeleteFirstZero(TimeEndDT.ToString("hh:mm tt").ToLower());
 
-            TheDescription += $"Schedule will be used on {UsedDate.ToShortDateString()} at {UsedDate.ToString("HH:mm")} ";
-            if (TheLimitStartDate.HasValue)
-            {
-                TheDescription += $"starting on {TheLimitStartDate.Value.ToShortDateString()} ";
-            }
-            if (TheLimitEndDate.HasValue)
-            {
-                TheDescription += $"ending on {TheLimitEndDate.Value.ToShortDateString()} ";
+                        TheDescription += $"between {TimeStartStr} and {TimeEndStr} ";
+                        break;
+                    case Enumerations.Type.Once:
+                    default:
+                        DateTime TimeFrecuencyDT = DateTime.Today.Add(TheDailyFrecuency.TimeFrecuency);
+                        string TimeFrecuencyStr = Scheduler.DeleteFirstZero(TimeFrecuencyDT.ToString("hh:mm tt").ToLower());
+                        TheDescription += $"on {TimeFrecuencyStr} ";
+                        break;
+                }
+                TheDescription += $"starting on {TheCurrentDate.ToShortDateString()}";
             }
             return TheDescription.Trim();
+        }
+
+        private static string DeleteFirstZero(string TheString)
+        {
+            if (TheString.StartsWith("0"))
+            {
+                TheString = TheString.Substring(1, TheString.Length - 1);
+            }
+            return TheString;
         }
 
         private static void ValidateConfiguration(Configuration TheConfiguration)
