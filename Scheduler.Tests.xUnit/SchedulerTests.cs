@@ -538,5 +538,82 @@ namespace Scheduler.Tests.xUnit
             }
         }
 
+        [Fact]
+        public void VALIDATION_CONFIGURATION_NOT_NULL()
+        {
+            Assert.Throws<ArgumentNullException>(() => Scheduler.GenerateDate(null));
+        }
+
+        [Fact]
+        public void VALIDATION_CONFIGURATION_RECURRING_WITHOUT_LIMIT_DATE()
+        {
+            DateTime TheDateTime = new DateTime(2020, 1, 1);
+            Configuration TheConfiguration = new Configuration();
+            TheConfiguration.CurrentDate = TheDateTime;
+            TheConfiguration.Type = Enumerations.Type.Recurring;
+            TheConfiguration.OccurrenceAmount = 1;
+            TheConfiguration.Occurrence = Enumerations.Occurrence.Daily;
+            Assert.Throws<ArgumentNullException>(() => Scheduler.GenerateDate(TheConfiguration));
+        }
+
+        [Fact]
+        public void VALIDATION_CONFIGURATION_DAILY_FRECUENCY_WITHOUT_TIME_START()
+        {
+            DateTime TheDateTime = new DateTime(2020, 1, 1);
+            Configuration TheConfiguration = new Configuration();
+
+            TheConfiguration.CurrentDate = TheDateTime;
+            TheConfiguration.Type = Enumerations.Type.Recurring;
+            TheConfiguration.OccurrenceAmount = 1;
+            TheConfiguration.Occurrence = Enumerations.Occurrence.Daily;
+            TheConfiguration.LimitEndDate = new DateTime(2099, 1, 1);
+
+            TheConfiguration.DailyFrecuencyConfiguration = new DailyFrecuency();
+            TheConfiguration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
+            TheConfiguration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
+            TheConfiguration.DailyFrecuencyConfiguration.OccurrenceAmount = 2;
+            TheConfiguration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(8, 0, 0);
+            Assert.Throws<ArgumentNullException>(() => Scheduler.GenerateDate(TheConfiguration));
+        }
+
+        [Fact]
+        public void VALIDATION_CONFIGURATION_DAILY_FRECUENCY_WITHOUT_TIME_END()
+        {
+            DateTime TheDateTime = new DateTime(2020, 1, 1);
+            Configuration TheConfiguration = new Configuration();
+
+            TheConfiguration.CurrentDate = TheDateTime;
+            TheConfiguration.Type = Enumerations.Type.Recurring;
+            TheConfiguration.OccurrenceAmount = 1;
+            TheConfiguration.Occurrence = Enumerations.Occurrence.Daily;
+            TheConfiguration.LimitEndDate = new DateTime(2099, 1, 1);
+
+            TheConfiguration.DailyFrecuencyConfiguration = new DailyFrecuency();
+            TheConfiguration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
+            TheConfiguration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
+            TheConfiguration.DailyFrecuencyConfiguration.OccurrenceAmount = 2;
+            TheConfiguration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(4, 0, 0);
+            Assert.Throws<ArgumentNullException>(() => Scheduler.GenerateDate(TheConfiguration));
+        }
+
+        [Fact]
+        public void VALIDATION_CONFIGURATION_DAILY_FRECUENCY_WITHOUT_TIME_START_AND_TIME_END()
+        {
+            DateTime TheDateTime = new DateTime(2020, 1, 1);
+            Configuration TheConfiguration = new Configuration();
+
+            TheConfiguration.CurrentDate = TheDateTime;
+            TheConfiguration.Type = Enumerations.Type.Recurring;
+            TheConfiguration.OccurrenceAmount = 1;
+            TheConfiguration.Occurrence = Enumerations.Occurrence.Daily;
+            TheConfiguration.LimitEndDate = new DateTime(2099, 1, 1);
+
+            TheConfiguration.DailyFrecuencyConfiguration = new DailyFrecuency();
+            TheConfiguration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
+            TheConfiguration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
+            TheConfiguration.DailyFrecuencyConfiguration.OccurrenceAmount = 2;
+            Assert.Throws<ArgumentNullException>(() => Scheduler.GenerateDate(TheConfiguration));
+        }
+
     }
 }
