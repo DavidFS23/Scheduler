@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Scheduler
@@ -36,38 +37,16 @@ namespace Scheduler
     {
         public int WeekAmount { get; set; }
 
-        private Enumerations.Weekday[] weekDays;
-        public Enumerations.Weekday[] WeekDays 
-        { 
+        private Collection<Enumerations.Weekday> weekDays;
+        public Enumerations.Weekday[] WeekDays
+        {
             get
             {
-                return this.weekDays.OrderBy(D => ((int)D)).ToArray();
+                return this.weekDays.OrderBy(D => (int)D).ToArray();
             }
             set
             {
-                this.weekDays = value;
-            }
-        }
-
-        public static Enumerations.Weekday GetWeekDay(DayOfWeek TheDayOfWeek)
-        {
-            switch (TheDayOfWeek)
-            {
-                case DayOfWeek.Monday:
-                    return Enumerations.Weekday.Monday;
-                case DayOfWeek.Tuesday:
-                    return Enumerations.Weekday.Tuesday;
-                case DayOfWeek.Wednesday:
-                    return Enumerations.Weekday.Wednesday;
-                case DayOfWeek.Thursday:
-                    return Enumerations.Weekday.Thursday;
-                case DayOfWeek.Friday:
-                    return Enumerations.Weekday.Friday;
-                case DayOfWeek.Saturday:
-                    return Enumerations.Weekday.Saturday;
-                case DayOfWeek.Sunday:
-                default:
-                    return Enumerations.Weekday.Sunday;
+                this.weekDays = new Collection<Enumerations.Weekday>(value);
             }
         }
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using static Scheduler.Enumerations;
 
@@ -7,252 +6,273 @@ namespace Scheduler
 {
     public class Scheduler
     {
-
-        public static CalculationResult GenerateDate(Configuration TheConfiguration)
+        public static CalculationResult GenerateDate(Configuration configuration)
         {
-            Scheduler.ValidateConfiguration(TheConfiguration);
-            return Scheduler.CalculateNextDate(TheConfiguration);
+            Scheduler.ValidateConfiguration(configuration);
+            return Scheduler.CalculateNextDate(configuration);
         }
 
-        private static CalculationResult CalculateNextDate(Configuration TheConfiguration)
+        private static CalculationResult CalculateNextDate(Configuration configuration)
         {
-            if (TheConfiguration == null)
+            if (configuration == null)
             {
-                throw new ArgumentNullException("The parameter Configuration should not be null.");
+                throw new Exception("The parameter Configuration should not be null.");
             }
-            CalculationResult TheCalculation = new CalculationResult();
-            TheCalculation.NextExecutionTime = Scheduler.CalculateExecutionTime(TheConfiguration.Occurrence, TheConfiguration.OccurrenceAmount, TheConfiguration.CurrentDate, TheConfiguration.DailyFrecuencyConfiguration, TheConfiguration.WeeklyConfiguration);
-            TheCalculation.Description = Scheduler.CalculateDescription(
-                TheConfiguration.CurrentDate, 
-                TheConfiguration.Type, 
-                TheCalculation.NextExecutionTime, 
-                TheConfiguration.DateTime, 
-                TheConfiguration.LimitStartDate, 
-                TheConfiguration.LimitEndDate, 
-                TheConfiguration.WeeklyConfiguration, 
-                TheConfiguration.DailyFrecuencyConfiguration);
-            return TheCalculation;
+            CalculationResult calculation = new CalculationResult();
+            calculation.NextExecutionTime = Scheduler.CalculateExecutionTime(configuration.Occurrence, configuration.OccurrenceAmount, configuration.CurrentDate, configuration.DailyFrecuencyConfiguration, configuration.WeeklyConfiguration);
+            calculation.Description = Scheduler.CalculateDescription(
+                configuration.CurrentDate, 
+                configuration.Type, 
+                calculation.NextExecutionTime, 
+                configuration.DateTime, 
+                configuration.LimitStartDate, 
+                configuration.LimitEndDate, 
+                configuration.WeeklyConfiguration, 
+                configuration.DailyFrecuencyConfiguration);
+            return calculation;
         }
         
-        private static DateTime CalculateExecutionTime(Occurrence TheOccurrence, int TheOccurenceAmount, DateTime TheCurrentDate, DailyFrecuency DailyFrecuencyConfiguration, WeeklyConfiguration WeeklyConfiguration)
+        private static DateTime CalculateExecutionTime(Occurrence occurrence, int occurenceAmount, DateTime currentDate, DailyFrecuency dailyFrecuencyConfiguration, WeeklyConfiguration weeklyConfiguration)
         {
-            DateTime TheNewDate = TheCurrentDate;
+            DateTime newDate = currentDate;
 
-            if (WeeklyConfiguration != null && WeeklyConfiguration.WeekDays != null)
+            if (weeklyConfiguration != null && weeklyConfiguration.WeekDays != null)
             {
-                while ((int)WeeklyConfiguration.GetWeekDay(TheNewDate.DayOfWeek) < (int)GetNextWeekDay(WeeklyConfiguration.WeekDays, TheNewDate))
+                while ((int)Scheduler.GetWeekDay(newDate.DayOfWeek) < (int)GetNextWeekDay(weeklyConfiguration.WeekDays, newDate))
                 {
-                    TheNewDate = TheNewDate.AddDays(1);
+                    newDate = newDate.AddDays(1);
                 }
             }
 
-            if (DailyFrecuencyConfiguration != null)
+            if (dailyFrecuencyConfiguration != null)
             {
-                TimeSpan LaHora = new TimeSpan(TheNewDate.Hour, TheNewDate.Minute, TheNewDate.Second);
-                if (DailyFrecuencyConfiguration.TimeStart.HasValue && LaHora < DailyFrecuencyConfiguration.TimeStart)
+                TimeSpan LaHora = new TimeSpan(newDate.Hour, newDate.Minute, newDate.Second);
+                if (dailyFrecuencyConfiguration.TimeStart.HasValue && LaHora < dailyFrecuencyConfiguration.TimeStart)
                 {
-                    LaHora = DailyFrecuencyConfiguration.TimeStart.Value;
-                    return new DateTime(TheNewDate.Year, TheNewDate.Month, TheNewDate.Day, LaHora.Hours, LaHora.Minutes, LaHora.Seconds);
+                    LaHora = dailyFrecuencyConfiguration.TimeStart.Value;
+                    return new DateTime(newDate.Year, newDate.Month, newDate.Day, LaHora.Hours, LaHora.Minutes, LaHora.Seconds);
                 }
-                switch (DailyFrecuencyConfiguration.Type)
+                switch (dailyFrecuencyConfiguration.Type)
                 {
                     case Enumerations.Type.Recurring:
-                        switch (DailyFrecuencyConfiguration.DailyOccurrence)
+                        switch (dailyFrecuencyConfiguration.DailyOccurrence)
                         {
                             case DailyOccurrence.Seconds:
-                                TheNewDate = TheNewDate.AddSeconds(DailyFrecuencyConfiguration.OccurrenceAmount);
+                                newDate = newDate.AddSeconds(dailyFrecuencyConfiguration.OccurrenceAmount);
                                 break;
                             case DailyOccurrence.Minutes:
-                                TheNewDate = TheNewDate.AddSeconds(DailyFrecuencyConfiguration.OccurrenceAmount * 60);
+                                newDate = newDate.AddSeconds(dailyFrecuencyConfiguration.OccurrenceAmount * 60);
                                 break;
                             case DailyOccurrence.Hours:
                             default:
-                                TheNewDate = TheNewDate.AddHours(DailyFrecuencyConfiguration.OccurrenceAmount);
+                                newDate = newDate.AddHours(dailyFrecuencyConfiguration.OccurrenceAmount);
                                 break;
                         }
-                        LaHora = new TimeSpan(TheNewDate.Hour, TheNewDate.Minute, TheNewDate.Second);
-                        if (DailyFrecuencyConfiguration.TimeEnd.HasValue && LaHora <= DailyFrecuencyConfiguration.TimeEnd)
+                        LaHora = new TimeSpan(newDate.Hour, newDate.Minute, newDate.Second);
+                        if (dailyFrecuencyConfiguration.TimeEnd.HasValue && LaHora <= dailyFrecuencyConfiguration.TimeEnd)
                         {
-                            return TheNewDate;
+                            return newDate;
                         }
                         else
                         {
-                            if (DailyFrecuencyConfiguration.TimeStart.HasValue)
+                            if (dailyFrecuencyConfiguration.TimeStart.HasValue)
                             {
-                                TheNewDate = new DateTime(TheNewDate.Year, TheNewDate.Month, TheNewDate.Day, DailyFrecuencyConfiguration.TimeStart.Value.Hours, DailyFrecuencyConfiguration.TimeStart.Value.Minutes, DailyFrecuencyConfiguration.TimeStart.Value.Seconds);
+                                newDate = new DateTime(newDate.Year, newDate.Month, newDate.Day, dailyFrecuencyConfiguration.TimeStart.Value.Hours, dailyFrecuencyConfiguration.TimeStart.Value.Minutes, dailyFrecuencyConfiguration.TimeStart.Value.Seconds);
                             }
                         }
                         break;
                     case Enumerations.Type.Once:
                     default:
-                        if (DailyFrecuencyConfiguration.TimeFrecuency.HasValue)
+                        if (dailyFrecuencyConfiguration.TimeFrecuency.HasValue)
                         {
-                            TheNewDate = new DateTime(TheNewDate.Year, TheNewDate.Month, TheNewDate.Day, DailyFrecuencyConfiguration.TimeFrecuency.Value.Hours, DailyFrecuencyConfiguration.TimeFrecuency.Value.Minutes, DailyFrecuencyConfiguration.TimeFrecuency.Value.Seconds);
+                            newDate = new DateTime(newDate.Year, newDate.Month, newDate.Day, dailyFrecuencyConfiguration.TimeFrecuency.Value.Hours, dailyFrecuencyConfiguration.TimeFrecuency.Value.Minutes, dailyFrecuencyConfiguration.TimeFrecuency.Value.Seconds);
                         }
                         break;
                 }
             }
 
-            switch (TheOccurrence)
+            switch (occurrence)
             {
                 case Occurrence.Monthly:
-                    TheNewDate = TheNewDate.AddMonths(TheOccurenceAmount);
+                    newDate = newDate.AddMonths(occurenceAmount);
                     break;
                 case Occurrence.Weekly:
-                    TheNewDate = TheNewDate.AddDays(TheOccurenceAmount * 7);
+                    newDate = newDate.AddDays(occurenceAmount * 7);
                     break;
                 case Occurrence.Daily:
                 default:
-                    TheNewDate = TheNewDate.AddDays(TheOccurenceAmount);
+                    newDate = newDate.AddDays(occurenceAmount);
                     break;
             }
 
-            if (WeeklyConfiguration != null)
+            if (weeklyConfiguration != null)
             {
-                if (WeeklyConfiguration.WeekDays != null)
+                if (weeklyConfiguration.WeekDays != null)
                 {
-                    while ((int)WeeklyConfiguration.GetWeekDay(TheNewDate.DayOfWeek) < (int)GetNextWeekDay(WeeklyConfiguration.WeekDays, TheNewDate))
+                    while ((int)Scheduler.GetWeekDay(newDate.DayOfWeek) < (int)GetNextWeekDay(weeklyConfiguration.WeekDays, newDate))
                     {
-                        TheNewDate = TheNewDate.AddDays(1);
+                        newDate = newDate.AddDays(1);
                     }
                 }
 
-                if (WeeklyConfiguration.WeekAmount != 0 && WeeklyConfiguration.GetWeekDay(TheNewDate.DayOfWeek) > WeeklyConfiguration.WeekDays.Last())
+                if (weeklyConfiguration.WeekAmount != 0 && Scheduler.GetWeekDay(newDate.DayOfWeek) > weeklyConfiguration.WeekDays.Last())
                 {
-                    TheNewDate = TheNewDate.AddDays(WeeklyConfiguration.WeekAmount * 7);
-                    while (WeeklyConfiguration.GetWeekDay(TheNewDate.DayOfWeek) != WeeklyConfiguration.WeekDays.First())
+                    newDate = newDate.AddDays(weeklyConfiguration.WeekAmount * 7);
+                    while (Scheduler.GetWeekDay(newDate.DayOfWeek) != weeklyConfiguration.WeekDays.First())
                     {
-                        TheNewDate = TheNewDate.AddDays(-1);
+                        newDate = newDate.AddDays(-1);
                     }
                 }
             }
-            return TheNewDate;
+            return newDate;
         }
 
-        public static string CalculateDescription(DateTime TheCurrentDate, Enumerations.Type TheType, DateTime TheNextExecutionTime, DateTime? TheDateTime, DateTime? TheLimitStartDate, DateTime? TheLimitEndDate, WeeklyConfiguration TheWeeklyConfiguration, DailyFrecuency TheDailyFrecuency)
+        public static string CalculateDescription(DateTime currentDate, Enumerations.Type type, DateTime nextExecutionTime, DateTime? dateTime, DateTime? limitStartDate, DateTime? limitEndDate, WeeklyConfiguration weeklyConfiguration, DailyFrecuency dailyFrecuency)
         {
             //  Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00 am and 8:00 am starting on 01/01/2020
-            string TheDescription = string.Empty;
-            if (TheWeeklyConfiguration != null)
+            string description = string.Empty;
+            if (weeklyConfiguration != null)
             {
-                TheDescription += $"Occurs every {TheWeeklyConfiguration.WeekAmount} weeks ";
+                description += $"Occurs every {weeklyConfiguration.WeekAmount} weeks ";
                 bool FirstPrinted = true;
-                foreach (Enumerations.Weekday WeekDay in TheWeeklyConfiguration.WeekDays)
+                foreach (Enumerations.Weekday WeekDay in weeklyConfiguration.WeekDays)
                 {
-                    string TheSeparator = (WeekDay == TheWeeklyConfiguration.WeekDays.Last() ? " and " : ", ");
-                    TheDescription += (FirstPrinted == false ? TheSeparator : "on ") + WeekDay.ToString().ToLower();
+                    string separator = (WeekDay == weeklyConfiguration.WeekDays.Last() ? " and " : ", ");
+                    description += (FirstPrinted == false ? separator : "on ") + WeekDay.ToString().ToLower();
                     if (FirstPrinted)
                     {
                         FirstPrinted = false;
                     }
                     
                 }
-                if (TheWeeklyConfiguration.WeekDays.Length > 0) { TheDescription += " "; }
+                if (weeklyConfiguration.WeekDays.Length > 0) { description += " "; }
             }
             else
             {
-                switch (TheType)
+                switch (type)
                 {
                     case Enumerations.Type.Once:
-                        TheDescription += "Occurs once. ";
+                        description += "Occurs once. ";
                         break;
                     case Enumerations.Type.Recurring:
-                        TheDescription += "Occurs every day. ";
+                        description += "Occurs every day. ";
                         break;
                 }
-                DateTime UsedDate = TheNextExecutionTime;
-                if (TheDateTime.HasValue)
+                DateTime UsedDate = nextExecutionTime;
+                if (dateTime.HasValue)
                 {
-                    UsedDate = TheDateTime.Value;
+                    UsedDate = dateTime.Value;
                 }
 
-                TheDescription += $"Schedule will be used on {UsedDate.ToShortDateString()} at {UsedDate.ToString("HH:mm")} ";
-                if (TheLimitStartDate.HasValue)
+                description += $"Schedule will be used on {UsedDate.ToShortDateString()} at {UsedDate.ToString("HH:mm")} ";
+                if (limitStartDate.HasValue)
                 {
-                    TheDescription += $"starting on {TheLimitStartDate.Value.ToShortDateString()} ";
+                    description += $"starting on {limitStartDate.Value.ToShortDateString()} ";
                 }
-                if (TheLimitEndDate.HasValue)
+                if (limitEndDate.HasValue)
                 {
-                    TheDescription += $"ending on {TheLimitEndDate.Value.ToShortDateString()} ";
+                    description += $"ending on {limitEndDate.Value.ToShortDateString()} ";
                 }
             }
-            if (TheDailyFrecuency != null)
+            if (dailyFrecuency != null)
             {
-                if (TheDailyFrecuency.OccurrenceAmount != 0)
+                if (dailyFrecuency.OccurrenceAmount != 0)
                 {
-                    TheDescription += $"every {TheDailyFrecuency.OccurrenceAmount} {TheDailyFrecuency.DailyOccurrence.ToString().ToLower()} ";
+                    description += $"every {dailyFrecuency.OccurrenceAmount} {dailyFrecuency.DailyOccurrence.ToString().ToLower()} ";
                 }
-                switch (TheDailyFrecuency.Type)
+                switch (dailyFrecuency.Type)
                 {
                     case Enumerations.Type.Recurring:
-                        if (TheDailyFrecuency.TimeStart.HasValue && TheDailyFrecuency.TimeEnd.HasValue)
+                        if (dailyFrecuency.TimeStart.HasValue && dailyFrecuency.TimeEnd.HasValue)
                         {
-                            DateTime TimeStartDT = DateTime.Today.Add(TheDailyFrecuency.TimeStart.Value);
+                            DateTime TimeStartDT = DateTime.Today.Add(dailyFrecuency.TimeStart.Value);
                             string TimeStartStr = Scheduler.DeleteFirstZero(TimeStartDT.ToString("hh:mm tt").ToLower());
-                            DateTime TimeEndDT = DateTime.Today.Add(TheDailyFrecuency.TimeEnd.Value);
+                            DateTime TimeEndDT = DateTime.Today.Add(dailyFrecuency.TimeEnd.Value);
                             string TimeEndStr = Scheduler.DeleteFirstZero(TimeEndDT.ToString("hh:mm tt").ToLower());
 
-                            TheDescription += $"between {TimeStartStr} and {TimeEndStr} ";
+                            description += $"between {TimeStartStr} and {TimeEndStr} ";
                         }
                         break;
                     case Enumerations.Type.Once:
                     default:
-                        if (TheDailyFrecuency.TimeFrecuency.HasValue)
+                        if (dailyFrecuency.TimeFrecuency.HasValue)
                         {
-                            DateTime TimeFrecuencyDT = DateTime.Today.Add(TheDailyFrecuency.TimeFrecuency.Value);
+                            DateTime TimeFrecuencyDT = DateTime.Today.Add(dailyFrecuency.TimeFrecuency.Value);
                             string TimeFrecuencyStr = Scheduler.DeleteFirstZero(TimeFrecuencyDT.ToString("hh:mm tt").ToLower());
-                            TheDescription += $"on {TimeFrecuencyStr} ";
+                            description += $"on {TimeFrecuencyStr} ";
                         }
                         break;
                 }
-                TheDescription += $"starting on {TheCurrentDate.ToShortDateString()}";
+                description += $"starting on {currentDate.ToShortDateString()}";
             }
-            return TheDescription.Trim();
+            return description.Trim();
         }
 
         
 
-        private static void ValidateConfiguration(Configuration TheConfiguration)
+        private static void ValidateConfiguration(Configuration configuration)
         {
-            if (TheConfiguration == null)
+            if (configuration == null)
             {
-                throw new ArgumentNullException("The parameter Configuration should not be null.");
+                throw new Exception("The parameter Configuration should not be null.");
             }
-            if (TheConfiguration.Type == Enumerations.Type.Recurring && TheConfiguration.LimitEndDate == null)
+            if (configuration.Type == Enumerations.Type.Recurring && configuration.LimitEndDate == null)
             {
-                throw new ArgumentNullException("If the configuration is Recurring, you should add Limit End Date.");
+                throw new Exception("If the configuration is Recurring, you should add Limit End Date.");
             }
-            if (TheConfiguration.DailyFrecuencyConfiguration != null && TheConfiguration.DailyFrecuencyConfiguration.OccurrenceAmount != 0 && 
-                (TheConfiguration.DailyFrecuencyConfiguration.TimeStart == null || TheConfiguration.DailyFrecuencyConfiguration.TimeEnd == null))
+            if (configuration.DailyFrecuencyConfiguration != null && configuration.DailyFrecuencyConfiguration.OccurrenceAmount != 0 && 
+                (configuration.DailyFrecuencyConfiguration.TimeStart == null || configuration.DailyFrecuencyConfiguration.TimeEnd == null))
             {
-                throw new ArgumentNullException("If the configuration is Daily Frecuency, you should add Start and End Time.");
+                throw new Exception("If the configuration is Daily Frecuency, you should add Start and End Time.");
             }
         }
 
-        private static Weekday GetNextWeekDay(Weekday[] TheDays, DateTime TheDate)
+        private static Weekday GetNextWeekDay(Weekday[] days, DateTime date)
         {
-            if (TheDays == null || TheDays.Length == 0) { throw new ArgumentException("You should add Weekdays to get the next weekday."); }
-            if (TheDate == null) { throw new ArgumentNullException(); }
+            if (days == null || days.Length == 0) { throw new Exception("You should add Weekdays to get the next weekday."); }
+            if (date == null) { throw new Exception("You should add Date to get the next weekday."); }
             while (true)
             {
-                foreach (Weekday TheWeekDay in TheDays)
+                foreach (Weekday weekDay in days)
                 {
-                    if (TheWeekDay == WeeklyConfiguration.GetWeekDay(TheDate.DayOfWeek))
+                    if (weekDay == Scheduler.GetWeekDay(date.DayOfWeek))
                     {
-                        return TheWeekDay;
+                        return weekDay;
                     }
                 }
-                TheDate = TheDate.AddDays(1);
+                date = date.AddDays(1);
             }
         }
 
-        private static string DeleteFirstZero(string TheString)
+        private static string DeleteFirstZero(string chars)
         {
-            if (TheString.StartsWith("0"))
+            if (chars.StartsWith("0"))
             {
-                TheString = TheString.Substring(1, TheString.Length - 1);
+                chars = chars.Substring(1, chars.Length - 1);
             }
-            return TheString;
+            return chars;
+        }
+
+        public static Enumerations.Weekday GetWeekDay(DayOfWeek dayOfWeek)
+        {
+            switch (dayOfWeek)
+            {
+                case DayOfWeek.Monday:
+                    return Enumerations.Weekday.Monday;
+                case DayOfWeek.Tuesday:
+                    return Enumerations.Weekday.Tuesday;
+                case DayOfWeek.Wednesday:
+                    return Enumerations.Weekday.Wednesday;
+                case DayOfWeek.Thursday:
+                    return Enumerations.Weekday.Thursday;
+                case DayOfWeek.Friday:
+                    return Enumerations.Weekday.Friday;
+                case DayOfWeek.Saturday:
+                    return Enumerations.Weekday.Saturday;
+                case DayOfWeek.Sunday:
+                default:
+                    return Enumerations.Weekday.Sunday;
+            }
         }
 
     }
