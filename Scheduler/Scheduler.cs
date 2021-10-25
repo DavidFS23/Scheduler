@@ -130,86 +130,120 @@ namespace Scheduler
 
         public static string CalculateDescription(Configuration configuration, DateTime nextExecutionTime)
         {
-            //  Occurs every 2 weeks on monday, thursday and friday every 2 hours between 4:00 am and 8:00 am starting on 01/01/2020
             string description = string.Empty;
             if (configuration.WeeklyConfiguration != null)
             {
-                description += $"Occurs every {configuration.WeeklyConfiguration.WeekAmount} weeks ";
-                bool FirstPrinted = true;
-                foreach (Enumerations.Weekday WeekDay in configuration.WeeklyConfiguration.WeekDays)
-                {
-                    string separator = (WeekDay == configuration.WeeklyConfiguration.WeekDays.Last() ? " and " : ", ");
-                    description += (FirstPrinted == false ? separator : "on ") + WeekDay.ToString().ToLower();
-                    if (FirstPrinted)
-                    {
-                        FirstPrinted = false;
-                    }
-                    
-                }
-                if (configuration.WeeklyConfiguration.WeekDays.Length > 0) { description += " "; }
+                description += GetDescriptionWeeklyConfiguration(configuration);
             }
             else
             {
-                switch (configuration.Type)
-                {
-                    case Enumerations.Type.Once:
-                        description += "Occurs once. ";
-                        break;
-                    case Enumerations.Type.Recurring:
-                        description += "Occurs every day. ";
-                        break;
-                }
-                DateTime UsedDate = nextExecutionTime;
-                if (configuration.DateTime.HasValue)
-                {
-                    UsedDate = configuration.DateTime.Value;
-                }
-
-                description += $"Schedule will be used on {UsedDate.ToShortDateString()} at {UsedDate.ToString("HH:mm")} ";
-                if (configuration.LimitStartDate.HasValue)
-                {
-                    description += $"starting on {configuration.LimitStartDate.Value.ToShortDateString()} ";
-                }
-                if (configuration.LimitEndDate.HasValue)
-                {
-                    description += $"ending on {configuration.LimitEndDate.Value.ToShortDateString()} ";
-                }
+                description += GetDescriptionBaseConfiguration(configuration, nextExecutionTime);
+                
             }
             if (configuration.DailyFrecuencyConfiguration != null)
             {
-                if (configuration.DailyFrecuencyConfiguration.OccurrenceAmount != 0)
-                {
-                    description += $"every {configuration.DailyFrecuencyConfiguration.OccurrenceAmount} {configuration.DailyFrecuencyConfiguration.DailyOccurrence.ToString().ToLower()} ";
-                }
-                switch (configuration.DailyFrecuencyConfiguration.Type)
-                {
-                    case Enumerations.Type.Recurring:
-                        if (configuration.DailyFrecuencyConfiguration.TimeStart.HasValue && configuration.DailyFrecuencyConfiguration.TimeEnd.HasValue)
-                        {
-                            DateTime TimeStartDT = DateTime.Today.Add(configuration.DailyFrecuencyConfiguration.TimeStart.Value);
-                            string TimeStartStr = Scheduler.DeleteFirstZero(TimeStartDT.ToString("hh:mm tt").ToLower());
-                            DateTime TimeEndDT = DateTime.Today.Add(configuration.DailyFrecuencyConfiguration.TimeEnd.Value);
-                            string TimeEndStr = Scheduler.DeleteFirstZero(TimeEndDT.ToString("hh:mm tt").ToLower());
-
-                            description += $"between {TimeStartStr} and {TimeEndStr} ";
-                        }
-                        break;
-                    case Enumerations.Type.Once:
-                    default:
-                        if (configuration.DailyFrecuencyConfiguration.TimeFrecuency.HasValue)
-                        {
-                            DateTime TimeFrecuencyDT = DateTime.Today.Add(configuration.DailyFrecuencyConfiguration.TimeFrecuency.Value);
-                            string TimeFrecuencyStr = Scheduler.DeleteFirstZero(TimeFrecuencyDT.ToString("hh:mm tt").ToLower());
-                            description += $"on {TimeFrecuencyStr} ";
-                        }
-                        break;
-                }
-                description += $"starting on {configuration.CurrentDate.ToShortDateString()}";
+                description += GetDescriptionDailyFrecuencyConfiguration(configuration);
             }
             return description.Trim();
         }
 
-        
+        private static string GetDescriptionBaseConfiguration(Configuration configuration, DateTime nextExecutionTime)
+        {
+            string description = string.Empty;
+            switch (configuration.Type)
+            {
+                case Enumerations.Type.Once:
+                    description += "Occurs once. ";
+                    break;
+                case Enumerations.Type.Recurring:
+                    description += "Occurs every day. ";
+                    break;
+            }
+            DateTime UsedDate = nextExecutionTime;
+            if (configuration.DateTime.HasValue)
+            {
+                UsedDate = configuration.DateTime.Value;
+            }
+
+            description += $"Schedule will be used on {UsedDate.ToShortDateString()} at {UsedDate.ToString("HH:mm")} ";
+            if (configuration.LimitStartDate.HasValue)
+            {
+                description += $"starting on {configuration.LimitStartDate.Value.ToShortDateString()} ";
+            }
+            if (configuration.LimitEndDate.HasValue)
+            {
+                description += $"ending on {configuration.LimitEndDate.Value.ToShortDateString()} ";
+            }
+            return description;
+        }
+
+        private static string GetDescriptionDailyFrecuencyConfiguration(Configuration configuration)
+        {
+            if (configuration.DailyFrecuencyConfiguration == null) { return string.Empty; }
+            string description = string.Empty;
+            if (configuration.DailyFrecuencyConfiguration.OccurrenceAmount != 0)
+            {
+                description += $"every {configuration.DailyFrecuencyConfiguration.OccurrenceAmount} {configuration.DailyFrecuencyConfiguration.DailyOccurrence.ToString().ToLower()} ";
+            }
+            switch (configuration.DailyFrecuencyConfiguration.Type)
+            {
+                case Enumerations.Type.Recurring:
+                    description += GetDescriptionDailyFrecuencyRecurring(configuration);
+                    break;
+                case Enumerations.Type.Once:
+                default:
+                    description += GetDescriptionDailyFrecuencyOnce(configuration);
+                    break;
+            }
+            description += $"starting on {configuration.CurrentDate.ToShortDateString()}";
+            return description;
+        }
+
+        private static string GetDescriptionDailyFrecuencyOnce(Configuration configuration)
+        {
+            string description = string.Empty;
+            if (configuration.DailyFrecuencyConfiguration.TimeFrecuency.HasValue)
+            {
+                DateTime TimeFrecuencyDT = DateTime.Today.Add(configuration.DailyFrecuencyConfiguration.TimeFrecuency.Value);
+                string TimeFrecuencyStr = Scheduler.DeleteFirstZero(TimeFrecuencyDT.ToString("hh:mm tt").ToLower());
+                description += $"on {TimeFrecuencyStr} ";
+            }
+            return description;
+        }
+
+        private static string GetDescriptionDailyFrecuencyRecurring(Configuration configuration)
+        {
+            string description = string.Empty;
+            if (configuration.DailyFrecuencyConfiguration.TimeStart.HasValue && configuration.DailyFrecuencyConfiguration.TimeEnd.HasValue)
+            {
+                DateTime TimeStartDT = DateTime.Today.Add(configuration.DailyFrecuencyConfiguration.TimeStart.Value);
+                string TimeStartStr = Scheduler.DeleteFirstZero(TimeStartDT.ToString("hh:mm tt").ToLower());
+                DateTime TimeEndDT = DateTime.Today.Add(configuration.DailyFrecuencyConfiguration.TimeEnd.Value);
+                string TimeEndStr = Scheduler.DeleteFirstZero(TimeEndDT.ToString("hh:mm tt").ToLower());
+
+                description += $"between {TimeStartStr} and {TimeEndStr} ";
+            }
+            return description;
+        }
+
+        private static string GetDescriptionWeeklyConfiguration(Configuration configuration)
+        {
+            if (configuration.WeeklyConfiguration == null) { return string.Empty; }
+            string description = $"Occurs every {configuration.WeeklyConfiguration.WeekAmount} weeks ";
+            bool FirstPrinted = true;
+            foreach (Enumerations.Weekday WeekDay in configuration.WeeklyConfiguration.WeekDays)
+            {
+                string separator = (WeekDay == configuration.WeeklyConfiguration.WeekDays.Last() ? " and " : ", ");
+                description += (FirstPrinted == false ? separator : "on ") + WeekDay.ToString().ToLower();
+                if (FirstPrinted)
+                {
+                    FirstPrinted = false;
+                }
+
+            }
+            if (configuration.WeeklyConfiguration.WeekDays.Length > 0) { description += " "; }
+            return description;
+        }
 
         private static void ValidateConfiguration(Configuration configuration)
         {
