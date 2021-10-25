@@ -31,7 +31,7 @@ namespace Scheduler.Tests.xUnit
             Configuration configuration = new Configuration();
             configuration.CurrentDate = dateTime;
             configuration.Type = Enumerations.Type.Once;
-            string description = Scheduler.CalculateDescription(configuration.CurrentDate, configuration.Type, new DateTime(2021, 1, 1, 14, 0, 0), null, configuration.LimitStartDate, configuration.LimitEndDate, configuration.WeeklyConfiguration, configuration.DailyFrecuencyConfiguration);
+            string description = Scheduler.CalculateDescription(configuration, new DateTime(2021, 1, 1, 14, 0, 0));
             string ExpectedText = "Occurs once. Schedule will be used on 01/01/2021 at 14:00";
             Assert.Equal(ExpectedText, description);
         }
@@ -45,7 +45,7 @@ namespace Scheduler.Tests.xUnit
             configuration.Type = Enumerations.Type.Recurring;
             configuration.LimitStartDate = new DateTime(2021, 1, 20);
             configuration.LimitEndDate = new DateTime(2021, 1, 25);
-            string description = Scheduler.CalculateDescription(configuration.CurrentDate, configuration.Type, dateTime, null, configuration.LimitStartDate, configuration.LimitEndDate, configuration.WeeklyConfiguration, configuration.DailyFrecuencyConfiguration);
+            string description = Scheduler.CalculateDescription(configuration, dateTime);
             string ExpectedText = "Occurs every day. Schedule will be used on 05/01/2021 at 16:00 starting on 20/01/2021 ending on 25/01/2021";
             Assert.Equal(ExpectedText, description);
         }
@@ -76,7 +76,7 @@ namespace Scheduler.Tests.xUnit
             configuration.WeeklyConfiguration.WeekDays = new Enumerations.Weekday[] { Enumerations.Weekday.Monday, Enumerations.Weekday.Thursday, Enumerations.Weekday.Friday };
             configuration.WeeklyConfiguration.WeekAmount = 2;
 
-            string description = Scheduler.CalculateDescription(configuration.CurrentDate, configuration.Type, dateTime, null, configuration.LimitStartDate, configuration.LimitEndDate, configuration.WeeklyConfiguration, configuration.DailyFrecuencyConfiguration);
+            string description = Scheduler.CalculateDescription(configuration, dateTime);
             string ExpectedText = $"Occurs every 2 weeks on monday, thursday and friday every 2 {occurrenceType.ToString().ToLower()} between 4:00 am and 8:00 am starting on 01/01/2020";
             Assert.Equal(ExpectedText, description);
         }
