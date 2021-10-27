@@ -42,6 +42,7 @@ namespace Scheduler
         {
             get
             {
+                if (this.weekDays == null) { return null; }
                 return this.weekDays.OrderBy(D => (int)D).ToArray();
             }
             set

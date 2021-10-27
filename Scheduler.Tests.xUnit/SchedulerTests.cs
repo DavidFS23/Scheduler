@@ -622,5 +622,32 @@ namespace Scheduler.Tests.xUnit
             Assert.Equal("If the configuration is Daily Frecuency, you should add Start and End Time.", exception.Message);
         }
 
+        [Fact]
+        public void validation_weekly_configuration_without_weekdays()
+        {
+            DateTime dateTime = new DateTime(2020, 1, 1);
+            Configuration configuration = new Configuration();
+
+            configuration.CurrentDate = dateTime;
+            configuration.Type = Enumerations.Type.Recurring;
+            configuration.OccurrenceAmount = 1;
+            configuration.Occurrence = Enumerations.Occurrence.Daily;
+            configuration.LimitEndDate = new DateTime(2099, 1, 1);
+
+            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
+            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
+            configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
+            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 2;
+            configuration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(4, 0, 0);
+            configuration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(8, 0, 0);
+
+            configuration.WeeklyConfiguration = new WeeklyConfiguration();
+            //configuration.WeeklyConfiguration.WeekDays = new Enumerations.Weekday[] { Enumerations.Weekday.Monday, Enumerations.Weekday.Thursday, Enumerations.Weekday.Friday };
+            configuration.WeeklyConfiguration.WeekAmount = 2;
+
+            var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
+            Assert.Equal("If you set weeks on Weekly Configuration, you should set almost one week day.", exception.Message);
+        }
+
     }
 }
