@@ -241,8 +241,14 @@ namespace Scheduler
             {
                 UsedDate = configuration.DateTime.Value;
             }
+            description += $"Schedule will be used on {UsedDate.ToShortDateString()} at {UsedDate.ToShortTimeString()} ";
+            description += Scheduler.GetDescriptionLimitDates(configuration);
+            return description;
+        }
 
-            description += $"Schedule will be used on {UsedDate.ToShortDateString()} at {UsedDate.ToString("HH:mm")} ";
+        private static string GetDescriptionLimitDates(Configuration configuration)
+        {
+            string description = string.Empty;
             if (configuration.LimitStartDate.HasValue)
             {
                 description += $"starting on {configuration.LimitStartDate.Value.ToShortDateString()} ";
