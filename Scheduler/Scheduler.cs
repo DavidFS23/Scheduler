@@ -25,7 +25,7 @@ namespace Scheduler
         {
             DateTime newDate = configuration.CurrentDate;
 
-            newDate = Scheduler.CalculateFirstDateWeeklyConfiguration(newDate, configuration.WeeklyConfiguration);
+            newDate = Scheduler.CalculateFirstDateMonthlyConfiguration(newDate, configuration.MonthlyConfiguration);
             var dailyFrecuencyCalculation = Scheduler.CalculateDailyFrecuency(newDate, configuration);
             if (dailyFrecuencyCalculation.IsDefinitive)
             {
@@ -33,31 +33,44 @@ namespace Scheduler
             }
             newDate = dailyFrecuencyCalculation.date;
             newDate = Scheduler.CalculateOcurrence(newDate, configuration.Occurrence, configuration.OccurrenceAmount);
-            newDate = Scheduler.CalculateLastDateWeeklyConfiguration(newDate, configuration.WeeklyConfiguration);
+            newDate = Scheduler.CalculateLastDateMonthlyConfiguration(newDate, configuration.MonthlyConfiguration);
             return newDate;
         }
 
-        private static DateTime CalculateLastDateWeeklyConfiguration(DateTime newDate, WeeklyConfiguration weeklyConfiguration)
+        private static DateTime CalculateFirstDateMonthlyConfiguration(DateTime newDate, MonthlyConfiguration monthlyConfiguration)
         {
-            if (weeklyConfiguration != null)
+            if (monthlyConfiguration != null)
             {
-                Scheduler.ValidateConfigurationWeeklyConfiguration(weeklyConfiguration);
-                if (weeklyConfiguration.WeekDays != null)
-                {
-                    while ((int)Scheduler.GetWeekDay(newDate.DayOfWeek) < (int)GetNextWeekDay(weeklyConfiguration.WeekDays, newDate))
-                    {
-                        newDate = newDate.AddDays(1);
-                    }
-                }
+                //Scheduler.ValidateConfigurationMonthlyConfiguration(monthlyConfiguration);
+                //while ((int)Scheduler.GetWeekDay(newDate.DayOfWeek) < (int)GetNextWeekDay(monthlyConfiguration.WeekDays, newDate))
+                //{
+                //    newDate = newDate.AddDays(1);
+                //}
+            }
+            return newDate;
+        }
 
-                if (weeklyConfiguration.WeekAmount != 0 && Scheduler.GetWeekDay(newDate.DayOfWeek) > weeklyConfiguration.WeekDays.Last())
-                {
-                    newDate = newDate.AddDays(weeklyConfiguration.WeekAmount * 7);
-                    while (Scheduler.GetWeekDay(newDate.DayOfWeek) != weeklyConfiguration.WeekDays.First())
-                    {
-                        newDate = newDate.AddDays(-1);
-                    }
-                }
+        private static DateTime CalculateLastDateMonthlyConfiguration(DateTime newDate, MonthlyConfiguration monthlyConfiguration)
+        {
+            if (monthlyConfiguration != null)
+            {
+                Scheduler.ValidateConfigurationMonthlyConfiguration(monthlyConfiguration);
+                //if (monthlyConfiguration.WeekDays != null)
+                //{
+                //    while ((int)Scheduler.GetWeekDay(newDate.DayOfWeek) < (int)GetNextWeekDay(monthlyConfiguration.WeekDays, newDate))
+                //    {
+                //        newDate = newDate.AddDays(1);
+                //    }
+                //}
+
+                //if (monthlyConfiguration.WeekAmount != 0 && Scheduler.GetWeekDay(newDate.DayOfWeek) > monthlyConfiguration.WeekDays.Last())
+                //{
+                //    newDate = newDate.AddDays(monthlyConfiguration.WeekAmount * 7);
+                //    while (Scheduler.GetWeekDay(newDate.DayOfWeek) != monthlyConfiguration.WeekDays.First())
+                //    {
+                //        newDate = newDate.AddDays(-1);
+                //    }
+                //}
             }
             return newDate;
         }
@@ -192,25 +205,12 @@ namespace Scheduler
             };
         }
 
-        private static DateTime CalculateFirstDateWeeklyConfiguration(DateTime newDate, WeeklyConfiguration weeklyConfiguration)
-        {
-            if (weeklyConfiguration != null)
-            {
-                Scheduler.ValidateConfigurationWeeklyConfiguration(weeklyConfiguration);
-                while ((int)Scheduler.GetWeekDay(newDate.DayOfWeek) < (int)GetNextWeekDay(weeklyConfiguration.WeekDays, newDate))
-                {
-                    newDate = newDate.AddDays(1);
-                }
-            }
-            return newDate;
-        }
-
         public static string CalculateDescription(Configuration configuration, DateTime nextExecutionTime)
         {
             string description = string.Empty;
-            if (configuration.WeeklyConfiguration != null)
+            if (configuration.MonthlyConfiguration != null)
             {
-                description += GetDescriptionWeeklyConfiguration(configuration);
+                description += GetDescriptionMonthlyConfiguration(configuration);
             }
             else
             {
@@ -309,22 +309,23 @@ namespace Scheduler
             return description;
         }
 
-        private static string GetDescriptionWeeklyConfiguration(Configuration configuration)
+        private static string GetDescriptionMonthlyConfiguration(Configuration configuration)
         {
-            if (configuration.WeeklyConfiguration == null) { return string.Empty; }
-            string description = $"Occurs every {configuration.WeeklyConfiguration.WeekAmount} weeks ";
-            bool FirstPrinted = true;
-            foreach (Enumerations.Weekday WeekDay in configuration.WeeklyConfiguration.WeekDays)
-            {
-                string separator = (WeekDay == configuration.WeeklyConfiguration.WeekDays.Last() ? " and " : ", ");
-                description += (FirstPrinted == false ? separator : "on ") + WeekDay.ToString().ToLower();
-                if (FirstPrinted)
-                {
-                    FirstPrinted = false;
-                }
+            if (configuration.MonthlyConfiguration == null) { return string.Empty; }
+            string description = string.Empty;
+            //description = $"Occurs every {configuration.MonthlyConfiguration.WeekAmount} weeks ";
+            //bool FirstPrinted = true;
+            //foreach (Enumerations.Weekday WeekDay in configuration.MonthlyConfiguration.WeekDays)
+            //{
+            //    string separator = (WeekDay == configuration.MonthlyConfiguration.WeekDays.Last() ? " and " : ", ");
+            //    description += (FirstPrinted == false ? separator : "on ") + WeekDay.ToString().ToLower();
+            //    if (FirstPrinted)
+            //    {
+            //        FirstPrinted = false;
+            //    }
 
-            }
-            if (configuration.WeeklyConfiguration.WeekDays.Length > 0) { description += " "; }
+            //}
+            //if (configuration.MonthlyConfiguration.WeekDays.Length > 0) { description += " "; }
             return description;
         }
 
@@ -349,16 +350,16 @@ namespace Scheduler
             }
         }
 
-        private static void ValidateConfigurationWeeklyConfiguration(WeeklyConfiguration weeklyConfiguration)
+        private static void ValidateConfigurationMonthlyConfiguration(MonthlyConfiguration monthlyConfiguration)
         {
-            if (weeklyConfiguration == null)
+            if (monthlyConfiguration == null)
             {
                 throw new Exception("The parameter WeeklyConfiguration should not be null.");
             }
-            if (weeklyConfiguration.WeekAmount != 0 && (weeklyConfiguration.WeekDays == null || weeklyConfiguration.WeekDays.Length == 0))
-            {
-                throw new Exception("If you set weeks on Weekly Configuration, you should set almost one week day.");
-            }
+            //if (monthlyConfiguration.WeekAmount != 0 && (monthlyConfiguration.WeekDays == null || monthlyConfiguration.WeekDays.Length == 0))
+            //{
+            //    throw new Exception("If you set weeks on Weekly Configuration, you should set almost one week day.");
+            //}
         }
 
         private static Weekday GetNextWeekDay(Weekday[] days, DateTime date)

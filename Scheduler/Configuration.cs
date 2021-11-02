@@ -17,7 +17,7 @@ namespace Scheduler
 
         public DailyFrecuency DailyFrecuencyConfiguration { get; set; }
 
-        public WeeklyConfiguration WeeklyConfiguration { get; set; }
+        public MonthlyConfiguration MonthlyConfiguration { get; set; }
 
     }
 
@@ -33,23 +33,9 @@ namespace Scheduler
 
     }
 
-    public class WeeklyConfiguration
+    public class MonthlyConfiguration
     {
-        public int WeekAmount { get; set; }
-
-        private Collection<Enumerations.Weekday> weekDays;
-        public Enumerations.Weekday[] WeekDays
-        {
-            get
-            {
-                if (this.weekDays == null) { return null; }
-                return this.weekDays.OrderBy(D => (int)D).ToArray();
-            }
-            set
-            {
-                this.weekDays = new Collection<Enumerations.Weekday>(value);
-            }
-        }
+        
 
     }
 
