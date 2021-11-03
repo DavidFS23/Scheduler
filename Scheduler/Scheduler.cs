@@ -32,7 +32,7 @@ namespace Scheduler
                 return dailyFrecuencyCalculation.date;
             }
             newDate = dailyFrecuencyCalculation.date;
-            newDate = Scheduler.CalculateOcurrence(newDate, configuration.Occurrence, configuration.OccurrenceAmount);
+            newDate = Scheduler.CalculateOcurrence(newDate, configuration.Occurrence, configuration.OccurrenceAmount, configuration.MonthlyConfiguration);
             newDate = Scheduler.CalculateLastDateMonthlyConfiguration(newDate, configuration.MonthlyConfiguration);
             return newDate;
         }
@@ -41,7 +41,14 @@ namespace Scheduler
         {
             if (monthlyConfiguration != null)
             {
-                //Scheduler.ValidateConfigurationMonthlyConfiguration(monthlyConfiguration);
+                Scheduler.ValidateConfigurationMonthlyConfiguration(monthlyConfiguration);
+                if (monthlyConfiguration.ConcreteDay)
+                {
+                    while (newDate.Day != monthlyConfiguration.DayNumber)
+                    {
+                        newDate = newDate.AddDays(1);
+                    }
+                }
                 //while ((int)Scheduler.GetWeekDay(newDate.DayOfWeek) < (int)GetNextWeekDay(monthlyConfiguration.WeekDays, newDate))
                 //{
                 //    newDate = newDate.AddDays(1);
@@ -55,6 +62,10 @@ namespace Scheduler
             if (monthlyConfiguration != null)
             {
                 Scheduler.ValidateConfigurationMonthlyConfiguration(monthlyConfiguration);
+                if (monthlyConfiguration.ConcreteDay)
+                {
+                    newDate = newDate.AddMonths(monthlyConfiguration.ConcreteDayMonthFrecuency);
+                }
                 //if (monthlyConfiguration.WeekDays != null)
                 //{
                 //    while ((int)Scheduler.GetWeekDay(newDate.DayOfWeek) < (int)GetNextWeekDay(monthlyConfiguration.WeekDays, newDate))
@@ -75,8 +86,9 @@ namespace Scheduler
             return newDate;
         }
 
-        private static DateTime CalculateOcurrence(DateTime newDate, Occurrence occurrence, int occurrenceAmount)
+        private static DateTime CalculateOcurrence(DateTime newDate, Occurrence occurrence, int occurrenceAmount, MonthlyConfiguration monthlyConfiguration)
         {
+            if (monthlyConfiguration != null) { return newDate; }
             switch (occurrence)
             {
                 case Occurrence.Monthly:
@@ -354,7 +366,7 @@ namespace Scheduler
         {
             if (monthlyConfiguration == null)
             {
-                throw new Exception("The parameter WeeklyConfiguration should not be null.");
+                throw new Exception("The parameter MonthlyConfiguration should not be null.");
             }
             //if (monthlyConfiguration.WeekAmount != 0 && (monthlyConfiguration.WeekDays == null || monthlyConfiguration.WeekDays.Length == 0))
             //{

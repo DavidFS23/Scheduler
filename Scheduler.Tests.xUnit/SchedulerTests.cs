@@ -649,5 +649,112 @@ namespace Scheduler.Tests.xUnit
         //    Assert.Equal("If you set weeks on Weekly Configuration, you should set almost one week day.", exception.Message);
         //}
 
+        [Fact]
+        public void validation_monthly_configuration_day_8_every_3_months()
+        {
+            DateTime dateTime = new DateTime(2020, 1, 1);
+            Configuration configuration = new Configuration();
+
+            configuration.CurrentDate = dateTime;
+            configuration.Type = Enumerations.Type.Recurring;
+            configuration.OccurrenceAmount = 1;
+            configuration.Occurrence = Enumerations.Occurrence.Monthly;
+            configuration.LimitEndDate = new DateTime(2099, 1, 1);
+
+            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
+            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
+            configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
+            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 2;
+            configuration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(4, 0, 0);
+            configuration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(8, 0, 0);
+
+            configuration.MonthlyConfiguration = new MonthlyConfiguration();
+            configuration.MonthlyConfiguration.ConcreteDay = true;
+            configuration.MonthlyConfiguration.DayNumber = 8;
+            configuration.MonthlyConfiguration.ConcreteDayMonthFrecuency = 3;
+
+            CalculationResult result1 = Scheduler.GenerateDate(configuration);
+            configuration.CurrentDate = result1.NextExecutionTime;
+            CalculationResult result2 = Scheduler.GenerateDate(configuration);
+            configuration.CurrentDate = result2.NextExecutionTime;
+            CalculationResult result3 = Scheduler.GenerateDate(configuration);
+            configuration.CurrentDate = result3.NextExecutionTime;
+            CalculationResult result4 = Scheduler.GenerateDate(configuration);
+            configuration.CurrentDate = result4.NextExecutionTime;
+            CalculationResult result5 = Scheduler.GenerateDate(configuration);
+            configuration.CurrentDate = result5.NextExecutionTime;
+            CalculationResult result6 = Scheduler.GenerateDate(configuration);
+            configuration.CurrentDate = result6.NextExecutionTime;
+            CalculationResult result7 = Scheduler.GenerateDate(configuration);
+            configuration.CurrentDate = result7.NextExecutionTime;
+            CalculationResult result8 = Scheduler.GenerateDate(configuration);
+            configuration.CurrentDate = result8.NextExecutionTime;
+            CalculationResult result9 = Scheduler.GenerateDate(configuration);
+
+            Assert.Equal(result1.NextExecutionTime, new DateTime(2020, 1, 8, 4, 0, 0));
+            Assert.Equal(result2.NextExecutionTime, new DateTime(2020, 1, 8, 6, 0, 0));
+            Assert.Equal(result3.NextExecutionTime, new DateTime(2020, 1, 8, 8, 0, 0));
+            Assert.Equal(result4.NextExecutionTime, new DateTime(2020, 4, 8, 4, 0, 0));
+            Assert.Equal(result5.NextExecutionTime, new DateTime(2020, 4, 8, 6, 0, 0));
+            Assert.Equal(result6.NextExecutionTime, new DateTime(2020, 4, 8, 8, 0, 0));
+            Assert.Equal(result7.NextExecutionTime, new DateTime(2020, 7, 8, 4, 0, 0));
+            Assert.Equal(result8.NextExecutionTime, new DateTime(2020, 7, 8, 6, 0, 0));
+            Assert.Equal(result9.NextExecutionTime, new DateTime(2020, 7, 8, 8, 0, 0));
+        }
+
+        [Fact]
+        public void validation_monthly_configuration_the_first_thursday_of_every_3_months()
+        {
+            DateTime dateTime = new DateTime(2020, 1, 1);
+            Configuration configuration = new Configuration();
+
+            configuration.CurrentDate = dateTime;
+            configuration.Type = Enumerations.Type.Recurring;
+            configuration.OccurrenceAmount = 1;
+            configuration.Occurrence = Enumerations.Occurrence.Monthly;
+            configuration.LimitEndDate = new DateTime(2099, 1, 1);
+
+            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
+            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
+            configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
+            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 2;
+            configuration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(4, 0, 0);
+            configuration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(8, 0, 0);
+
+            configuration.MonthlyConfiguration = new MonthlyConfiguration();
+            configuration.MonthlyConfiguration.SomeDay = true;
+            configuration.MonthlyConfiguration.Frecuency = Enumerations.Frecuency.First;
+            configuration.MonthlyConfiguration.MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Thursday;
+            configuration.MonthlyConfiguration.SomeDayMonthFrecuency = 3;
+
+            CalculationResult result1 = Scheduler.GenerateDate(configuration);
+            configuration.CurrentDate = result1.NextExecutionTime;
+            CalculationResult result2 = Scheduler.GenerateDate(configuration);
+            configuration.CurrentDate = result2.NextExecutionTime;
+            CalculationResult result3 = Scheduler.GenerateDate(configuration);
+            configuration.CurrentDate = result3.NextExecutionTime;
+            CalculationResult result4 = Scheduler.GenerateDate(configuration);
+            configuration.CurrentDate = result4.NextExecutionTime;
+            CalculationResult result5 = Scheduler.GenerateDate(configuration);
+            configuration.CurrentDate = result5.NextExecutionTime;
+            CalculationResult result6 = Scheduler.GenerateDate(configuration);
+            configuration.CurrentDate = result6.NextExecutionTime;
+            CalculationResult result7 = Scheduler.GenerateDate(configuration);
+            configuration.CurrentDate = result7.NextExecutionTime;
+            CalculationResult result8 = Scheduler.GenerateDate(configuration);
+            configuration.CurrentDate = result8.NextExecutionTime;
+            CalculationResult result9 = Scheduler.GenerateDate(configuration);
+
+            Assert.Equal(result1.NextExecutionTime, new DateTime(2020, 1, 2, 3, 0, 0));
+            Assert.Equal(result2.NextExecutionTime, new DateTime(2020, 1, 2, 4, 0, 0));
+            Assert.Equal(result3.NextExecutionTime, new DateTime(2020, 1, 2, 5, 0, 0));
+            Assert.Equal(result4.NextExecutionTime, new DateTime(2020, 1, 2, 6, 0, 0));
+            Assert.Equal(result5.NextExecutionTime, new DateTime(2020, 4, 2, 3, 0, 0));
+            Assert.Equal(result6.NextExecutionTime, new DateTime(2020, 4, 2, 4, 0, 0));
+            Assert.Equal(result7.NextExecutionTime, new DateTime(2020, 4, 2, 5, 0, 0));
+            Assert.Equal(result8.NextExecutionTime, new DateTime(2020, 4, 2, 6, 0, 0));
+            Assert.Equal(result9.NextExecutionTime, new DateTime(2020, 7, 2, 3, 0, 0));
+        }
+
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using static Scheduler.Enumerations;
 
 namespace Scheduler
 {
@@ -35,7 +36,14 @@ namespace Scheduler
 
     public class MonthlyConfiguration
     {
-        
+        public bool ConcreteDay { get; set; }
+        public int DayNumber { get; set; }
+        public int ConcreteDayMonthFrecuency { get; set; }
+
+        public bool SomeDay { get; set; }
+        public Frecuency? Frecuency { get; set; }
+        public MonthlyConfigurationWeekDay? MonthlyConfigurationWeekDay { get; set; }
+        public int SomeDayMonthFrecuency { get; set; }
 
     }
 
