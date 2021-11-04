@@ -4,7 +4,7 @@ using static Scheduler.Enumerations;
 
 namespace Scheduler
 {
-    public class Scheduler
+    public static class Scheduler
     {
         public static CalculationResult GenerateDate(Configuration configuration)
         {
@@ -49,12 +49,139 @@ namespace Scheduler
                         newDate = newDate.AddDays(1);
                     }
                 }
+                if (monthlyConfiguration.SomeDay)
+                {
+                    while (IsSelectedDay(monthlyConfiguration.Frecuency.Value, monthlyConfiguration.MonthlyConfigurationWeekDay.Value, newDate) == false)
+                    {
+                        newDate = newDate.AddDays(1);
+                    }
+                }
                 //while ((int)Scheduler.GetWeekDay(newDate.DayOfWeek) < (int)GetNextWeekDay(monthlyConfiguration.WeekDays, newDate))
                 //{
                 //    newDate = newDate.AddDays(1);
                 //}
             }
             return newDate;
+        }
+
+        private static DateTime GetFirstWeekdayOfMonth(int year, int month)
+        {
+            DateTime firstWeekDayOfMonth = new DateTime(year, month, 1);
+            while (firstWeekDayOfMonth.DayOfWeek != DayOfWeek.Monday &&
+                firstWeekDayOfMonth.DayOfWeek != DayOfWeek.Tuesday &&
+                firstWeekDayOfMonth.DayOfWeek != DayOfWeek.Wednesday &&
+                firstWeekDayOfMonth.DayOfWeek != DayOfWeek.Thursday &&
+                firstWeekDayOfMonth.DayOfWeek != DayOfWeek.Friday)
+            {
+                firstWeekDayOfMonth = firstWeekDayOfMonth.AddDays(1);
+            }
+            return firstWeekDayOfMonth;
+        }
+
+        private static DateTime GetFirstWeekenddayOfMonth(int year, int month)
+        {
+            DateTime firstWeekendDayOfMonth = new DateTime(year, month, 1);
+            while (firstWeekendDayOfMonth.DayOfWeek != DayOfWeek.Saturday &&
+                firstWeekendDayOfMonth.DayOfWeek != DayOfWeek.Sunday)
+            {
+                firstWeekendDayOfMonth = firstWeekendDayOfMonth.AddDays(1);
+            }
+            return firstWeekendDayOfMonth;
+        }
+
+        private static bool IsSelectedDay(Enumerations.Frecuency frecuency, Enumerations.MonthlyConfigurationWeekDay weekday, DateTime day)
+        {
+            DateTime firstWeekDayOfMonth = GetFirstWeekdayOfMonth(day.Year, day.Month);
+            DateTime firstWeekendDayOfMonth = GetFirstWeekenddayOfMonth(day.Year, day.Month);
+            DayOfWeek dayOfWeekRequired;
+            switch (weekday)
+            {
+                case MonthlyConfigurationWeekDay.Weekday:
+                    if (day.DayOfWeek != DayOfWeek.Monday &&
+                        day.DayOfWeek != DayOfWeek.Tuesday &&
+                        day.DayOfWeek != DayOfWeek.Wednesday &&
+                        day.DayOfWeek != DayOfWeek.Thursday &&
+                        day.DayOfWeek != DayOfWeek.Friday)
+                    {
+                        return false;
+                    }
+                    dayOfWeekRequired = firstWeekDayOfMonth.DayOfWeek;
+                    break;
+                case MonthlyConfigurationWeekDay.Weekend:
+                    if (day.DayOfWeek != DayOfWeek.Saturday &&
+                        day.DayOfWeek != DayOfWeek.Sunday)
+                    {
+                        return false;
+                    }
+                    dayOfWeekRequired = firstWeekendDayOfMonth.DayOfWeek;
+                    break;
+                case MonthlyConfigurationWeekDay.Monday:
+                    if (day.DayOfWeek != DayOfWeek.Monday) { return false; }
+                    dayOfWeekRequired = DayOfWeek.Monday;
+                    break;
+                case MonthlyConfigurationWeekDay.Tuesday:
+                    if (day.DayOfWeek != DayOfWeek.Tuesday) { return false; }
+                    dayOfWeekRequired = DayOfWeek.Tuesday;
+                    break;
+                case MonthlyConfigurationWeekDay.Wednesday:
+                    if (day.DayOfWeek != DayOfWeek.Wednesday) { return false; }
+                    dayOfWeekRequired = DayOfWeek.Wednesday;
+                    break;
+                case MonthlyConfigurationWeekDay.Thursday:
+                    if (day.DayOfWeek != DayOfWeek.Thursday) { return false; }
+                    dayOfWeekRequired = DayOfWeek.Thursday;
+                    break;
+                case MonthlyConfigurationWeekDay.Friday:
+                    if (day.DayOfWeek != DayOfWeek.Friday) { return false; }
+                    dayOfWeekRequired = DayOfWeek.Friday;
+                    break;
+                case MonthlyConfigurationWeekDay.Saturday:
+                    if (day.DayOfWeek != DayOfWeek.Saturday) { return false; }
+                    dayOfWeekRequired = DayOfWeek.Saturday;
+                    break;
+                case MonthlyConfigurationWeekDay.Sunday:
+                default:
+                    if (day.DayOfWeek != DayOfWeek.Sunday) { return false; }
+                    dayOfWeekRequired = DayOfWeek.Sunday;
+                    break;
+            }
+            DateTime dateRequired;
+            switch (frecuency)
+            {
+                case Frecuency.First:
+                    dateRequired = GetDateRequired(day, 1, dayOfWeekRequired);
+                    break;
+                case Frecuency.Second:
+                    dateRequired = GetDateRequired(day, 2, dayOfWeekRequired);
+                    break;
+                case Frecuency.Third:
+                    dateRequired = GetDateRequired(day, 3, dayOfWeekRequired);
+                    break;
+                case Frecuency.Fourth:
+                    dateRequired = GetDateRequired(day, 4, dayOfWeekRequired);
+                    break;
+                case Frecuency.Last:
+                default:
+                    dateRequired = new DateTime(day.Year, day.Month, DateTime.DaysInMonth(day.Year, day.Month));
+                    while(dateRequired.DayOfWeek != dayOfWeekRequired)
+                    {
+                        dateRequired.AddDays(-1);
+                    }
+                    break;
+            }
+            dateRequired = dateRequired.AddHours(day.Hour);
+            dateRequired = dateRequired.AddMinutes(day.Minute);
+            dateRequired = dateRequired.AddSeconds(day.Second);
+            if (dateRequired != day) { return false; }
+            return true;
+        }
+
+        private static DateTime GetDateRequired(this DateTime currentDate, int occurrence, DayOfWeek dayOfWeek)
+        {
+            var firstDay = new DateTime(currentDate.Year, currentDate.Month, 1);
+            var firstOccurrence = firstDay.DayOfWeek == dayOfWeek ? firstDay : firstDay.AddDays(dayOfWeek - firstDay.DayOfWeek);
+            if (firstOccurrence.Month < currentDate.Month) { occurrence = occurrence + 1; }
+            return firstOccurrence.AddDays(7 * (occurrence - 1));
         }
 
         private static DateTime CalculateLastDateMonthlyConfiguration(DateTime newDate, MonthlyConfiguration monthlyConfiguration)
@@ -65,6 +192,10 @@ namespace Scheduler
                 if (monthlyConfiguration.ConcreteDay)
                 {
                     newDate = newDate.AddMonths(monthlyConfiguration.ConcreteDayMonthFrecuency);
+                }
+                if (monthlyConfiguration.SomeDay)
+                {
+                    newDate = newDate.AddMonths(monthlyConfiguration.SomeDayMonthFrecuency);
                 }
                 //if (monthlyConfiguration.WeekDays != null)
                 //{
@@ -374,22 +505,22 @@ namespace Scheduler
             //}
         }
 
-        private static Weekday GetNextWeekDay(Weekday[] days, DateTime date)
-        {
-            if (days == null || days.Length == 0) { throw new Exception("You should add Weekdays to get the next weekday."); }
-            if (date == null) { throw new Exception("You should add Date to get the next weekday."); }
-            while (true)
-            {
-                foreach (Weekday weekDay in days)
-                {
-                    if (weekDay == Scheduler.GetWeekDay(date.DayOfWeek))
-                    {
-                        return weekDay;
-                    }
-                }
-                date = date.AddDays(1);
-            }
-        }
+        //private static Weekday GetNextWeekDay(Weekday[] days, DateTime date)
+        //{
+        //    if (days == null || days.Length == 0) { throw new Exception("You should add Weekdays to get the next weekday."); }
+        //    if (date == null) { throw new Exception("You should add Date to get the next weekday."); }
+        //    while (true)
+        //    {
+        //        foreach (Weekday weekDay in days)
+        //        {
+        //            if (weekDay == Scheduler.GetWeekDay(date.DayOfWeek))
+        //            {
+        //                return weekDay;
+        //            }
+        //        }
+        //        date = date.AddDays(1);
+        //    }
+        //}
 
         private static string DeleteFirstZero(string chars)
         {

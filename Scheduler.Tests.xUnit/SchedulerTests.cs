@@ -717,9 +717,9 @@ namespace Scheduler.Tests.xUnit
             configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
             configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
             configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
-            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 2;
-            configuration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(4, 0, 0);
-            configuration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(8, 0, 0);
+            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 1;
+            configuration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(3, 0, 0);
+            configuration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(6, 0, 0);
 
             configuration.MonthlyConfiguration = new MonthlyConfiguration();
             configuration.MonthlyConfiguration.SomeDay = true;
