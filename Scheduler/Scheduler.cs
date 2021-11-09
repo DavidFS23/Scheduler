@@ -25,75 +25,104 @@ namespace Scheduler
         {
             DateTime newDate = configuration.CurrentDate;
 
-            newDate = Scheduler.CalculateFirstDateMonthlyConfiguration(newDate, configuration.MonthlyConfiguration);
-            var dailyFrecuencyCalculation = Scheduler.CalculateDailyFrecuency(newDate, configuration);
-            if (dailyFrecuencyCalculation.IsDefinitive)
+            var firstDateMonthlyConfiguration = Scheduler.CalculateFirstDateMonthlyConfiguration(newDate, configuration);
+            if (firstDateMonthlyConfiguration.IsDefinitive)
             {
-                return dailyFrecuencyCalculation.date;
+                return firstDateMonthlyConfiguration.date;
+            }
+            newDate = firstDateMonthlyConfiguration.date;
+            if (firstDateMonthlyConfiguration.DailyFrecuencyCalculated == false)
+            {
+                var dailyFrecuencyCalculation = Scheduler.CalculateDailyFrecuency(newDate, configuration);
+                if (dailyFrecuencyCalculation.IsDefinitive)
+                {
+                    return dailyFrecuencyCalculation.date;
+                }
+                newDate = dailyFrecuencyCalculation.date;
+            }
+            newDate = Scheduler.CalculateOcurrence(newDate, configuration.Occurrence, configuration.OccurrenceAmount, configuration.MonthlyConfiguration);
+            newDate = Scheduler.CalculateLastDateMonthlyConfiguration(newDate, configuration.MonthlyConfiguration, false);
+            return newDate;
+        }
+
+        private static DateCalculation CalculateFirstDateMonthlyConfiguration(DateTime newDate, Configuration configuration)
+        {
+            bool DailyFrecuencyCalculated = false;
+            if (configuration.MonthlyConfiguration != null)
+            {
+                Scheduler.ValidateConfigurationMonthlyConfiguration(configuration.MonthlyConfiguration);
+                if (configuration.MonthlyConfiguration.ConcreteDay)
+                {
+                    while (newDate.Day != configuration.MonthlyConfiguration.DayNumber)
+                    {
+                        newDate = newDate.AddDays(1);
+                    }
+                }
+                if (configuration.MonthlyConfiguration.SomeDay)
+                {
+                    return Scheduler.CalculateMonthlyConfigurationSomeDay(newDate, configuration);
+                }
+            }
+            return new DateCalculation() { date = newDate, IsDefinitive = false, DailyFrecuencyCalculated = DailyFrecuencyCalculated };
+        }
+
+        private static DateCalculation CalculateMonthlyConfigurationSomeDay(DateTime newDate, Configuration configuration)
+        {
+            var dailyFrecuencyCalculation = Scheduler.CalculateDailyFrecuency(newDate, configuration);
+            bool DailyFrecuencyCalculated = true;
+            if (IsSelectedDay(configuration.MonthlyConfiguration.MonthlyConfigurationWeekDay.Value, dailyFrecuencyCalculation.date) && dailyFrecuencyCalculation.IsDefinitive)
+            {
+                dailyFrecuencyCalculation.DailyFrecuencyCalculated = true;
+                return dailyFrecuencyCalculation;
             }
             newDate = dailyFrecuencyCalculation.date;
-            newDate = Scheduler.CalculateOcurrence(newDate, configuration.Occurrence, configuration.OccurrenceAmount, configuration.MonthlyConfiguration);
-            newDate = Scheduler.CalculateLastDateMonthlyConfiguration(newDate, configuration.MonthlyConfiguration);
-            return newDate;
-        }
-
-        private static DateTime CalculateFirstDateMonthlyConfiguration(DateTime newDate, MonthlyConfiguration monthlyConfiguration)
-        {
-            if (monthlyConfiguration != null)
+            if (configuration.MonthlyConfiguration.Frecuency == Frecuency.Last)
             {
-                Scheduler.ValidateConfigurationMonthlyConfiguration(monthlyConfiguration);
-                if (monthlyConfiguration.ConcreteDay)
+                newDate = new DateTime(newDate.Year, newDate.Month, DateTime.DaysInMonth(newDate.Year, newDate.Month));
+                while (IsSelectedDay(configuration.MonthlyConfiguration.MonthlyConfigurationWeekDay, newDate) == false)
                 {
-                    while (newDate.Day != monthlyConfiguration.DayNumber)
-                    {
-                        newDate = newDate.AddDays(1);
-                    }
+                    newDate = newDate.AddDays(-1);
                 }
-                if (monthlyConfiguration.SomeDay)
+                return new DateCalculation() { date = newDate, IsDefinitive = false, DailyFrecuencyCalculated = DailyFrecuencyCalculated };
+            }
+            int actualOccurence = 1;
+            int numberOfOccurrences = Scheduler.GetNumberOfOccurrences(configuration.MonthlyConfiguration.Frecuency);
+            bool isSelectedDay = IsSelectedDay(configuration.MonthlyConfiguration.MonthlyConfigurationWeekDay.Value, newDate);
+            if (isSelectedDay)
+            {
+                newDate = Scheduler.CalculateLastDateMonthlyConfiguration(newDate, configuration.MonthlyConfiguration, true);
+                isSelectedDay = IsSelectedDay(configuration.MonthlyConfiguration.MonthlyConfigurationWeekDay.Value, newDate);
+            }
+            while (isSelectedDay == false || (numberOfOccurrences > actualOccurence))
+            {
+                if (isSelectedDay)
                 {
-                    while (IsSelectedDay(monthlyConfiguration.Frecuency.Value, monthlyConfiguration.MonthlyConfigurationWeekDay.Value, newDate) == false)
-                    {
-                        newDate = newDate.AddDays(1);
-                    }
+                    actualOccurence++;
                 }
-                //while ((int)Scheduler.GetWeekDay(newDate.DayOfWeek) < (int)GetNextWeekDay(monthlyConfiguration.WeekDays, newDate))
-                //{
-                //    newDate = newDate.AddDays(1);
-                //}
+                newDate = newDate.AddDays(1);
+                isSelectedDay = IsSelectedDay(configuration.MonthlyConfiguration.MonthlyConfigurationWeekDay.Value, newDate);
             }
-            return newDate;
+            return new DateCalculation() { date = newDate, IsDefinitive = false, DailyFrecuencyCalculated = DailyFrecuencyCalculated };
         }
 
-        private static DateTime GetFirstWeekdayOfMonth(int year, int month)
+        private static int GetNumberOfOccurrences(Frecuency? frecuency)
         {
-            DateTime firstWeekDayOfMonth = new DateTime(year, month, 1);
-            while (firstWeekDayOfMonth.DayOfWeek != DayOfWeek.Monday &&
-                firstWeekDayOfMonth.DayOfWeek != DayOfWeek.Tuesday &&
-                firstWeekDayOfMonth.DayOfWeek != DayOfWeek.Wednesday &&
-                firstWeekDayOfMonth.DayOfWeek != DayOfWeek.Thursday &&
-                firstWeekDayOfMonth.DayOfWeek != DayOfWeek.Friday)
+            switch (frecuency)
             {
-                firstWeekDayOfMonth = firstWeekDayOfMonth.AddDays(1);
+                case Frecuency.First:
+                    return 1;
+                case Frecuency.Second:
+                    return 2;
+                case Frecuency.Third:
+                    return 3;
+                case Frecuency.Fourth:
+                    return 4;
             }
-            return firstWeekDayOfMonth;
+            return 1;
         }
 
-        private static DateTime GetFirstWeekenddayOfMonth(int year, int month)
+        private static bool IsSelectedDay(Enumerations.MonthlyConfigurationWeekDay? weekday, DateTime day)
         {
-            DateTime firstWeekendDayOfMonth = new DateTime(year, month, 1);
-            while (firstWeekendDayOfMonth.DayOfWeek != DayOfWeek.Saturday &&
-                firstWeekendDayOfMonth.DayOfWeek != DayOfWeek.Sunday)
-            {
-                firstWeekendDayOfMonth = firstWeekendDayOfMonth.AddDays(1);
-            }
-            return firstWeekendDayOfMonth;
-        }
-
-        private static bool IsSelectedDay(Enumerations.Frecuency frecuency, Enumerations.MonthlyConfigurationWeekDay weekday, DateTime day)
-        {
-            DateTime firstWeekDayOfMonth = GetFirstWeekdayOfMonth(day.Year, day.Month);
-            DateTime firstWeekendDayOfMonth = GetFirstWeekenddayOfMonth(day.Year, day.Month);
-            DayOfWeek dayOfWeekRequired;
             switch (weekday)
             {
                 case MonthlyConfigurationWeekDay.Weekday:
@@ -105,7 +134,6 @@ namespace Scheduler
                     {
                         return false;
                     }
-                    dayOfWeekRequired = firstWeekDayOfMonth.DayOfWeek;
                     break;
                 case MonthlyConfigurationWeekDay.Weekend:
                     if (day.DayOfWeek != DayOfWeek.Saturday &&
@@ -113,78 +141,34 @@ namespace Scheduler
                     {
                         return false;
                     }
-                    dayOfWeekRequired = firstWeekendDayOfMonth.DayOfWeek;
                     break;
                 case MonthlyConfigurationWeekDay.Monday:
                     if (day.DayOfWeek != DayOfWeek.Monday) { return false; }
-                    dayOfWeekRequired = DayOfWeek.Monday;
                     break;
                 case MonthlyConfigurationWeekDay.Tuesday:
                     if (day.DayOfWeek != DayOfWeek.Tuesday) { return false; }
-                    dayOfWeekRequired = DayOfWeek.Tuesday;
                     break;
                 case MonthlyConfigurationWeekDay.Wednesday:
                     if (day.DayOfWeek != DayOfWeek.Wednesday) { return false; }
-                    dayOfWeekRequired = DayOfWeek.Wednesday;
                     break;
                 case MonthlyConfigurationWeekDay.Thursday:
                     if (day.DayOfWeek != DayOfWeek.Thursday) { return false; }
-                    dayOfWeekRequired = DayOfWeek.Thursday;
                     break;
                 case MonthlyConfigurationWeekDay.Friday:
                     if (day.DayOfWeek != DayOfWeek.Friday) { return false; }
-                    dayOfWeekRequired = DayOfWeek.Friday;
                     break;
                 case MonthlyConfigurationWeekDay.Saturday:
                     if (day.DayOfWeek != DayOfWeek.Saturday) { return false; }
-                    dayOfWeekRequired = DayOfWeek.Saturday;
                     break;
                 case MonthlyConfigurationWeekDay.Sunday:
-                default:
                     if (day.DayOfWeek != DayOfWeek.Sunday) { return false; }
-                    dayOfWeekRequired = DayOfWeek.Sunday;
                     break;
             }
-            DateTime dateRequired;
-            switch (frecuency)
-            {
-                case Frecuency.First:
-                    dateRequired = GetDateRequired(day, 1, dayOfWeekRequired);
-                    break;
-                case Frecuency.Second:
-                    dateRequired = GetDateRequired(day, 2, dayOfWeekRequired);
-                    break;
-                case Frecuency.Third:
-                    dateRequired = GetDateRequired(day, 3, dayOfWeekRequired);
-                    break;
-                case Frecuency.Fourth:
-                    dateRequired = GetDateRequired(day, 4, dayOfWeekRequired);
-                    break;
-                case Frecuency.Last:
-                default:
-                    dateRequired = new DateTime(day.Year, day.Month, DateTime.DaysInMonth(day.Year, day.Month));
-                    while(dateRequired.DayOfWeek != dayOfWeekRequired)
-                    {
-                        dateRequired.AddDays(-1);
-                    }
-                    break;
-            }
-            dateRequired = dateRequired.AddHours(day.Hour);
-            dateRequired = dateRequired.AddMinutes(day.Minute);
-            dateRequired = dateRequired.AddSeconds(day.Second);
-            if (dateRequired != day) { return false; }
             return true;
         }
 
-        private static DateTime GetDateRequired(this DateTime currentDate, int occurrence, DayOfWeek dayOfWeek)
-        {
-            var firstDay = new DateTime(currentDate.Year, currentDate.Month, 1);
-            var firstOccurrence = firstDay.DayOfWeek == dayOfWeek ? firstDay : firstDay.AddDays(dayOfWeek - firstDay.DayOfWeek);
-            if (firstOccurrence.Month < currentDate.Month) { occurrence = occurrence + 1; }
-            return firstOccurrence.AddDays(7 * (occurrence - 1));
-        }
 
-        private static DateTime CalculateLastDateMonthlyConfiguration(DateTime newDate, MonthlyConfiguration monthlyConfiguration)
+        private static DateTime CalculateLastDateMonthlyConfiguration(DateTime newDate, MonthlyConfiguration monthlyConfiguration, bool exec)
         {
             if (monthlyConfiguration != null)
             {
@@ -193,26 +177,14 @@ namespace Scheduler
                 {
                     newDate = newDate.AddMonths(monthlyConfiguration.ConcreteDayMonthFrecuency);
                 }
-                if (monthlyConfiguration.SomeDay)
+                if (monthlyConfiguration.SomeDay && exec)
                 {
                     newDate = newDate.AddMonths(monthlyConfiguration.SomeDayMonthFrecuency);
+                    while (newDate.Day != 1)
+                    {
+                        newDate = newDate.AddDays(-1);
+                    }
                 }
-                //if (monthlyConfiguration.WeekDays != null)
-                //{
-                //    while ((int)Scheduler.GetWeekDay(newDate.DayOfWeek) < (int)GetNextWeekDay(monthlyConfiguration.WeekDays, newDate))
-                //    {
-                //        newDate = newDate.AddDays(1);
-                //    }
-                //}
-
-                //if (monthlyConfiguration.WeekAmount != 0 && Scheduler.GetWeekDay(newDate.DayOfWeek) > monthlyConfiguration.WeekDays.Last())
-                //{
-                //    newDate = newDate.AddDays(monthlyConfiguration.WeekAmount * 7);
-                //    while (Scheduler.GetWeekDay(newDate.DayOfWeek) != monthlyConfiguration.WeekDays.First())
-                //    {
-                //        newDate = newDate.AddDays(-1);
-                //    }
-                //}
             }
             return newDate;
         }
@@ -409,7 +381,12 @@ namespace Scheduler
             string description = string.Empty;
             if (configuration.DailyFrecuencyConfiguration.OccurrenceAmount != 0)
             {
-                description += $"every {configuration.DailyFrecuencyConfiguration.OccurrenceAmount} {configuration.DailyFrecuencyConfiguration.DailyOccurrence.ToString().ToLower()} ";
+                string dailyOccurrence = configuration.DailyFrecuencyConfiguration.DailyOccurrence.ToString().ToLower();
+                if (configuration.DailyFrecuencyConfiguration.OccurrenceAmount == 1)
+                {
+                    dailyOccurrence = dailyOccurrence.Substring(0, dailyOccurrence.Length - 1);
+                }
+                description += $"every {configuration.DailyFrecuencyConfiguration.OccurrenceAmount} {dailyOccurrence} ";
             }
             switch (configuration.DailyFrecuencyConfiguration.Type)
             {
@@ -456,19 +433,16 @@ namespace Scheduler
         {
             if (configuration.MonthlyConfiguration == null) { return string.Empty; }
             string description = string.Empty;
-            //description = $"Occurs every {configuration.MonthlyConfiguration.WeekAmount} weeks ";
-            //bool FirstPrinted = true;
-            //foreach (Enumerations.Weekday WeekDay in configuration.MonthlyConfiguration.WeekDays)
-            //{
-            //    string separator = (WeekDay == configuration.MonthlyConfiguration.WeekDays.Last() ? " and " : ", ");
-            //    description += (FirstPrinted == false ? separator : "on ") + WeekDay.ToString().ToLower();
-            //    if (FirstPrinted)
-            //    {
-            //        FirstPrinted = false;
-            //    }
 
-            //}
-            //if (configuration.MonthlyConfiguration.WeekDays.Length > 0) { description += " "; }
+            description += "Occurs ";
+            if (configuration.MonthlyConfiguration.SomeDay)
+            {
+                string frecuency = configuration.MonthlyConfiguration.Frecuency.ToString().ToLower();
+                string weekday = configuration.MonthlyConfiguration.MonthlyConfigurationWeekDay.ToString().ToLower();
+                string monthFrecuency = configuration.MonthlyConfiguration.SomeDayMonthFrecuency.ToString();
+                description += $"the {frecuency} {weekday} of every {monthFrecuency} months ";
+            }
+            
             return description;
         }
 
@@ -499,28 +473,35 @@ namespace Scheduler
             {
                 throw new Exception("The parameter MonthlyConfiguration should not be null.");
             }
-            //if (monthlyConfiguration.WeekAmount != 0 && (monthlyConfiguration.WeekDays == null || monthlyConfiguration.WeekDays.Length == 0))
-            //{
-            //    throw new Exception("If you set weeks on Weekly Configuration, you should set almost one week day.");
-            //}
+            if (monthlyConfiguration.SomeDay && monthlyConfiguration.ConcreteDay)
+            {
+                throw new Exception("You should not select Concrete Day and Some Day at the same time.");
+            }
+            if (monthlyConfiguration.ConcreteDay && monthlyConfiguration.DayNumber <= 0)
+            {
+                throw new Exception("You should insert a positive Day Number if you set Concrete Day.");
+            }
+            if (monthlyConfiguration.ConcreteDay && monthlyConfiguration.ConcreteDayMonthFrecuency == 0)
+            {
+                throw new Exception("You should insert Month Frecuency if you set Concrete Day.");
+            }
+            if (monthlyConfiguration.SomeDay && monthlyConfiguration.Frecuency == null)
+            {
+                throw new Exception("You should insert Frecuency if you set Some Day.");
+            }
+            if (monthlyConfiguration.SomeDay && monthlyConfiguration.MonthlyConfigurationWeekDay == null)
+            {
+                throw new Exception("You should insert Weekday if you set Some Day.");
+            }
+            if (monthlyConfiguration.SomeDay && monthlyConfiguration.SomeDayMonthFrecuency == 0)
+            {
+                throw new Exception("You should insert Month Frecuency if you set Some Day.");
+            }
+            if (monthlyConfiguration.SomeDay && monthlyConfiguration.SomeDayMonthFrecuency < 0)
+            {
+                throw new Exception("You should insert positive Month Frecuency.");
+            }
         }
-
-        //private static Weekday GetNextWeekDay(Weekday[] days, DateTime date)
-        //{
-        //    if (days == null || days.Length == 0) { throw new Exception("You should add Weekdays to get the next weekday."); }
-        //    if (date == null) { throw new Exception("You should add Date to get the next weekday."); }
-        //    while (true)
-        //    {
-        //        foreach (Weekday weekDay in days)
-        //        {
-        //            if (weekDay == Scheduler.GetWeekDay(date.DayOfWeek))
-        //            {
-        //                return weekDay;
-        //            }
-        //        }
-        //        date = date.AddDays(1);
-        //    }
-        //}
 
         private static string DeleteFirstZero(string chars)
         {
@@ -557,6 +538,7 @@ namespace Scheduler
         {
             public DateTime date { get; set; }
             public bool IsDefinitive { get; set; }
+            public bool DailyFrecuencyCalculated { get; set; }
         }
 
     }
