@@ -15,11 +15,12 @@ namespace Scheduler.Tests.xUnit
         public void calculate_next_date_once(int year, int month, int day, int occurrenceAmount)
         {
             DateTime dateTime = new DateTime(year, month, day);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Once;
-            configuration.OccurrenceAmount = occurrenceAmount;
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Once,
+                OccurrenceAmount = occurrenceAmount
+            };
             CalculationResult result = Scheduler.GenerateDate(configuration);
             Assert.Equal(result.NextExecutionTime, dateTime.AddDays(occurrenceAmount));
         }
@@ -28,9 +29,11 @@ namespace Scheduler.Tests.xUnit
         public void calculate_description_without_limit_dates()
         {
             DateTime dateTime = new DateTime(2021, 1, 1, 14, 0, 0);
-            Configuration configuration = new Configuration();
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Once;
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Once
+            };
             string description = Scheduler.CalculateDescription(configuration, new DateTime(2021, 1, 1, 14, 0, 0));
             string ExpectedText = "Occurs once. Schedule will be used on 01/01/2021 at 14:00";
             Assert.Equal(ExpectedText, description);
@@ -40,11 +43,13 @@ namespace Scheduler.Tests.xUnit
         public void calculate_description_with_limit_dates()
         {
             DateTime dateTime = new DateTime(2021, 1, 5, 16, 0, 0);
-            Configuration configuration = new Configuration();
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.LimitStartDate = new DateTime(2021, 1, 20);
-            configuration.LimitEndDate = new DateTime(2021, 1, 25);
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                LimitStartDate = new DateTime(2021, 1, 20),
+                LimitEndDate = new DateTime(2021, 1, 25)
+            };
             string description = Scheduler.CalculateDescription(configuration, dateTime);
             string ExpectedText = "Occurs every day. Schedule will be used on 05/01/2021 at 16:00 starting on 20/01/2021 ending on 25/01/2021";
             Assert.Equal(ExpectedText, description);
@@ -59,12 +64,13 @@ namespace Scheduler.Tests.xUnit
         public void calculate_next_date_recurring_daily(int year, int month, int day, int occurrenceAmount)
         {
             DateTime dateTime = new DateTime(year, month, day);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.OccurrenceAmount = occurrenceAmount;
-            configuration.LimitEndDate = new DateTime(2099, 1, 1);
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = occurrenceAmount,
+                LimitEndDate = new DateTime(2099, 1, 1)
+            };
 
             CalculationResult result1 = Scheduler.GenerateDate(configuration);
             configuration.CurrentDate = result1.NextExecutionTime;
@@ -86,19 +92,21 @@ namespace Scheduler.Tests.xUnit
         public void calculate_next_date_recurring_weekly(int year, int month, int day, int occurrenceAmount)
         {
             DateTime dateTime = new DateTime(year, month, day);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.OccurrenceAmount = occurrenceAmount;
-            configuration.Occurrence = Enumerations.Occurrence.Weekly;
-            configuration.LimitEndDate = new DateTime(2099, 1, 1);
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = occurrenceAmount,
+                Occurrence = Enumerations.Occurrence.Weekly,
+                LimitEndDate = new DateTime(2099, 1, 1)
+            };
 
             CalculationResult result1 = Scheduler.GenerateDate(configuration);
             configuration.CurrentDate = result1.NextExecutionTime;
             CalculationResult result2 = Scheduler.GenerateDate(configuration);
             configuration.CurrentDate = result2.NextExecutionTime;
             CalculationResult result3 = Scheduler.GenerateDate(configuration);
+            
             Assert.Equal(result1.NextExecutionTime, dateTime.AddDays(occurrenceAmount * 7));
             Assert.Equal(result2.NextExecutionTime, dateTime.AddDays((occurrenceAmount * 7) * 2));
             Assert.Equal(result3.NextExecutionTime, dateTime.AddDays((occurrenceAmount * 7) * 3));
@@ -113,13 +121,14 @@ namespace Scheduler.Tests.xUnit
         public void calculate_next_date_recurring_monthly(int year, int month, int day, int occurrenceAmount)
         {
             DateTime dateTime = new DateTime(year, month, day);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.OccurrenceAmount = occurrenceAmount;
-            configuration.Occurrence = Enumerations.Occurrence.Monthly;
-            configuration.LimitEndDate = new DateTime(2099, 1, 1);
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = occurrenceAmount,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1)
+            };
 
             CalculationResult result1 = Scheduler.GenerateDate(configuration);
             configuration.CurrentDate = result1.NextExecutionTime;
@@ -143,11 +152,12 @@ namespace Scheduler.Tests.xUnit
         public void calculate_next_date_recurring_without_limit_date()
         {
             DateTime dateTime = new DateTime(2021, 1, 1);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.OccurrenceAmount = 1;
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1
+            };
 
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
             Assert.Equal("If the configuration is Recurring, you should add Limit End Date.", exception.Message);
@@ -157,12 +167,13 @@ namespace Scheduler.Tests.xUnit
         public void calculate_next_date_recurring_with_high_limit_date()
         {
             DateTime dateTime = new DateTime(2000, 1, 1);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.OccurrenceAmount = 1;
-            configuration.LimitEndDate = new DateTime(5000, 1, 1);
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                LimitEndDate = new DateTime(5000, 1, 1)
+            };
 
             CalculationResult result = Scheduler.GenerateDate(configuration);
             for (int i = 1; i < 1000; i++)
@@ -177,15 +188,17 @@ namespace Scheduler.Tests.xUnit
         public void dailyfrecuency_ocurs_once()
         {
             DateTime dateTime = new DateTime(2021, 1, 1);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Once;
-            configuration.OccurrenceAmount = 2;
-
-            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
-            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Once;
-            configuration.DailyFrecuencyConfiguration.TimeFrecuency = new TimeSpan(14, 30, 0);
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Once,
+                OccurrenceAmount = 2,
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Once,
+                    TimeFrecuency = new TimeSpan(14, 30, 0)
+                }
+            };
 
             CalculationResult result = Scheduler.GenerateDate(configuration);
             Assert.Equal(new DateTime(2021, 1, 3, 14, 30, 0), result.NextExecutionTime);
@@ -195,20 +208,22 @@ namespace Scheduler.Tests.xUnit
         public void dailyfrecuency_ocurs_every_x_hours()
         {
             DateTime dateTime = new DateTime(2021, 1, 1);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.Occurrence = Enumerations.Occurrence.Daily;
-            configuration.OccurrenceAmount = 2;
-            configuration.LimitEndDate = new DateTime(2021, 1, 10);
-
-            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
-            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
-            configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
-            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 2;
-            configuration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(13, 0, 0);
-            configuration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(17, 0, 0);
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                Occurrence = Enumerations.Occurrence.Daily,
+                OccurrenceAmount = 2,
+                LimitEndDate = new DateTime(2021, 1, 10),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 2,
+                    TimeStart = new TimeSpan(13, 0, 0),
+                    TimeEnd = new TimeSpan(17, 0, 0)
+                }
+            };
 
             CalculationResult result1 = Scheduler.GenerateDate(configuration);
             configuration.CurrentDate = result1.NextExecutionTime;
@@ -246,20 +261,22 @@ namespace Scheduler.Tests.xUnit
         public void dailyfrecuency_ocurs_every_x_minutes()
         {
             DateTime dateTime = new DateTime(2021, 1, 1);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.Occurrence = Enumerations.Occurrence.Daily;
-            configuration.OccurrenceAmount = 2;
-            configuration.LimitEndDate = new DateTime(2021, 1, 10);
-
-            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
-            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
-            configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Minutes;
-            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 2;
-            configuration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(13, 0, 0);
-            configuration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(13, 6, 0);
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                Occurrence = Enumerations.Occurrence.Daily,
+                OccurrenceAmount = 2,
+                LimitEndDate = new DateTime(2021, 1, 10),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Minutes,
+                    OccurrenceAmount = 2,
+                    TimeStart = new TimeSpan(13, 0, 0),
+                    TimeEnd = new TimeSpan(13, 6, 0)
+                }
+            };
 
             CalculationResult result1 = Scheduler.GenerateDate(configuration);
             configuration.CurrentDate = result1.NextExecutionTime;
@@ -297,20 +314,22 @@ namespace Scheduler.Tests.xUnit
         public void dailyfrecuency_ocurs_every_x_seconds()
         {
             DateTime dateTime = new DateTime(2021, 1, 1);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.Occurrence = Enumerations.Occurrence.Daily;
-            configuration.OccurrenceAmount = 2;
-            configuration.LimitEndDate = new DateTime(2021, 1, 10);
-
-            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
-            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
-            configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Seconds;
-            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 2;
-            configuration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(13, 0, 0);
-            configuration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(13, 0, 6);
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                Occurrence = Enumerations.Occurrence.Daily,
+                OccurrenceAmount = 2,
+                LimitEndDate = new DateTime(2021, 1, 10),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Seconds,
+                    OccurrenceAmount = 2,
+                    TimeStart = new TimeSpan(13, 0, 0),
+                    TimeEnd = new TimeSpan(13, 0, 6)
+                }
+            };
 
             CalculationResult result1 = Scheduler.GenerateDate(configuration);
             configuration.CurrentDate = result1.NextExecutionTime;
@@ -393,11 +412,13 @@ namespace Scheduler.Tests.xUnit
         public void validation_configuration_recurring_without_limit_date()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
-            Configuration configuration = new Configuration();
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.OccurrenceAmount = 1;
-            configuration.Occurrence = Enumerations.Occurrence.Daily;
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Daily
+            };
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
             Assert.Equal("If the configuration is Recurring, you should add Limit End Date.", exception.Message);
         }
@@ -406,19 +427,21 @@ namespace Scheduler.Tests.xUnit
         public void validation_configuration_daily_frecuency_without_time_start()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.OccurrenceAmount = 1;
-            configuration.Occurrence = Enumerations.Occurrence.Daily;
-            configuration.LimitEndDate = new DateTime(2099, 1, 1);
-
-            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
-            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
-            configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
-            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 2;
-            configuration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(8, 0, 0);
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Daily,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 2,
+                    TimeEnd = new TimeSpan(8, 0, 0)
+                }
+            };
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
             Assert.Equal("If the configuration is Daily Frecuency, you should add Start and End Time.", exception.Message);
         }
@@ -427,19 +450,21 @@ namespace Scheduler.Tests.xUnit
         public void validation_configuration_daily_frecuency_without_time_end()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.OccurrenceAmount = 1;
-            configuration.Occurrence = Enumerations.Occurrence.Daily;
-            configuration.LimitEndDate = new DateTime(2099, 1, 1);
-
-            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
-            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
-            configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
-            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 2;
-            configuration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(4, 0, 0);
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Daily,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 2,
+                    TimeStart = new TimeSpan(4, 0, 0)
+                }
+            };
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
             Assert.Equal("If the configuration is Daily Frecuency, you should add Start and End Time.", exception.Message);
         }
@@ -448,18 +473,20 @@ namespace Scheduler.Tests.xUnit
         public void validation_configuration_daily_frecuency_without_time_start_and_time_end()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.OccurrenceAmount = 1;
-            configuration.Occurrence = Enumerations.Occurrence.Daily;
-            configuration.LimitEndDate = new DateTime(2099, 1, 1);
-
-            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
-            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
-            configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
-            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 2;
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Daily,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 2
+                }
+            };
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
             Assert.Equal("If the configuration is Daily Frecuency, you should add Start and End Time.", exception.Message);
         }
@@ -468,25 +495,28 @@ namespace Scheduler.Tests.xUnit
         public void validation_monthly_configuration_day_8_every_3_months()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.OccurrenceAmount = 1;
-            configuration.Occurrence = Enumerations.Occurrence.Monthly;
-            configuration.LimitEndDate = new DateTime(2099, 1, 1);
-
-            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
-            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
-            configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
-            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 2;
-            configuration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(4, 0, 0);
-            configuration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(8, 0, 0);
-
-            configuration.MonthlyConfiguration = new MonthlyConfiguration();
-            configuration.MonthlyConfiguration.ConcreteDay = true;
-            configuration.MonthlyConfiguration.DayNumber = 8;
-            configuration.MonthlyConfiguration.ConcreteDayMonthFrecuency = 3;
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 2,
+                    TimeStart = new TimeSpan(4, 0, 0),
+                    TimeEnd = new TimeSpan(8, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    ConcreteDay = true,
+                    DayNumber = 8,
+                    ConcreteDayMonthFrecuency = 3
+                }
+            };
 
             CalculationResult result1 = Scheduler.GenerateDate(configuration);
             configuration.CurrentDate = result1.NextExecutionTime;
@@ -521,26 +551,29 @@ namespace Scheduler.Tests.xUnit
         public void validation_monthly_configuration_the_first_thursday_of_every_3_months()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.OccurrenceAmount = 1;
-            configuration.Occurrence = Enumerations.Occurrence.Monthly;
-            configuration.LimitEndDate = new DateTime(2099, 1, 1);
-
-            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
-            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
-            configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
-            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 1;
-            configuration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(3, 0, 0);
-            configuration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(6, 0, 0);
-
-            configuration.MonthlyConfiguration = new MonthlyConfiguration();
-            configuration.MonthlyConfiguration.SomeDay = true;
-            configuration.MonthlyConfiguration.Frecuency = Enumerations.Frecuency.First;
-            configuration.MonthlyConfiguration.MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Thursday;
-            configuration.MonthlyConfiguration.SomeDayMonthFrecuency = 3;
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    Frecuency = Enumerations.Frecuency.First,
+                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Thursday,
+                    SomeDayMonthFrecuency = 3
+                }
+            };
 
             CalculationResult result1 = Scheduler.GenerateDate(configuration);
             configuration.CurrentDate = result1.NextExecutionTime;
@@ -575,26 +608,29 @@ namespace Scheduler.Tests.xUnit
         public void validation_monthly_configuration_the_second_weekend_day_of_every_month()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.OccurrenceAmount = 1;
-            configuration.Occurrence = Enumerations.Occurrence.Monthly;
-            configuration.LimitEndDate = new DateTime(2099, 1, 1);
-
-            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
-            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
-            configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
-            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 1;
-            configuration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(3, 0, 0);
-            configuration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(6, 0, 0);
-
-            configuration.MonthlyConfiguration = new MonthlyConfiguration();
-            configuration.MonthlyConfiguration.SomeDay = true;
-            configuration.MonthlyConfiguration.Frecuency = Enumerations.Frecuency.Second;
-            configuration.MonthlyConfiguration.MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Weekend;
-            configuration.MonthlyConfiguration.SomeDayMonthFrecuency = 1;
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    Frecuency = Enumerations.Frecuency.Second,
+                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Weekend,
+                    SomeDayMonthFrecuency = 1
+                }
+            };
 
             CalculationResult result1 = Scheduler.GenerateDate(configuration);
             configuration.CurrentDate = result1.NextExecutionTime;
@@ -638,26 +674,29 @@ namespace Scheduler.Tests.xUnit
         public void description_monthly_configuration_the_first_thursday_of_every_3_months()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.OccurrenceAmount = 1;
-            configuration.Occurrence = Enumerations.Occurrence.Monthly;
-            configuration.LimitEndDate = new DateTime(2099, 1, 1);
-
-            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
-            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
-            configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
-            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 1;
-            configuration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(3, 0, 0);
-            configuration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(6, 0, 0);
-
-            configuration.MonthlyConfiguration = new MonthlyConfiguration();
-            configuration.MonthlyConfiguration.SomeDay = true;
-            configuration.MonthlyConfiguration.Frecuency = Enumerations.Frecuency.First;
-            configuration.MonthlyConfiguration.MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Thursday;
-            configuration.MonthlyConfiguration.SomeDayMonthFrecuency = 3;
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    Frecuency = Enumerations.Frecuency.First,
+                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Thursday,
+                    SomeDayMonthFrecuency = 3
+                }
+            };
 
             CalculationResult result1 = Scheduler.GenerateDate(configuration);
             string description = result1.Description;
@@ -669,27 +708,30 @@ namespace Scheduler.Tests.xUnit
         public void validate_not_concrete_day_and_some_day_same_time()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.OccurrenceAmount = 1;
-            configuration.Occurrence = Enumerations.Occurrence.Monthly;
-            configuration.LimitEndDate = new DateTime(2099, 1, 1);
-
-            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
-            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
-            configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
-            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 1;
-            configuration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(3, 0, 0);
-            configuration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(6, 0, 0);
-
-            configuration.MonthlyConfiguration = new MonthlyConfiguration();
-            configuration.MonthlyConfiguration.SomeDay = true;
-            configuration.MonthlyConfiguration.ConcreteDay = true;
-            configuration.MonthlyConfiguration.Frecuency = Enumerations.Frecuency.Second;
-            configuration.MonthlyConfiguration.MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Weekend;
-            configuration.MonthlyConfiguration.SomeDayMonthFrecuency = 1;
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    ConcreteDay = true,
+                    Frecuency = Enumerations.Frecuency.Second,
+                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Weekend,
+                    SomeDayMonthFrecuency = 1
+                }
+            };
 
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
             Assert.Equal("You should not select Concrete Day and Some Day at the same time.", exception.Message);
@@ -699,24 +741,27 @@ namespace Scheduler.Tests.xUnit
         public void validate_concrete_day_filled_properties_day_number()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.OccurrenceAmount = 1;
-            configuration.Occurrence = Enumerations.Occurrence.Monthly;
-            configuration.LimitEndDate = new DateTime(2099, 1, 1);
-
-            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
-            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
-            configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
-            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 1;
-            configuration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(3, 0, 0);
-            configuration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(6, 0, 0);
-
-            configuration.MonthlyConfiguration = new MonthlyConfiguration();
-            configuration.MonthlyConfiguration.ConcreteDay = true;
-            configuration.MonthlyConfiguration.ConcreteDayMonthFrecuency = 5;
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    ConcreteDay = true,
+                    ConcreteDayMonthFrecuency = 5
+                }
+            };
 
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
             Assert.Equal("You should insert a positive Day Number if you set Concrete Day.", exception.Message);
@@ -726,24 +771,27 @@ namespace Scheduler.Tests.xUnit
         public void validate_concrete_day_filled_properties_month_frecuency()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.OccurrenceAmount = 1;
-            configuration.Occurrence = Enumerations.Occurrence.Monthly;
-            configuration.LimitEndDate = new DateTime(2099, 1, 1);
-
-            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
-            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
-            configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
-            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 1;
-            configuration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(3, 0, 0);
-            configuration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(6, 0, 0);
-
-            configuration.MonthlyConfiguration = new MonthlyConfiguration();
-            configuration.MonthlyConfiguration.ConcreteDay = true;
-            configuration.MonthlyConfiguration.DayNumber = 1;
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    ConcreteDay = true,
+                    DayNumber = 1
+                }
+            };
 
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
             Assert.Equal("You should insert Month Frecuency if you set Concrete Day.", exception.Message);
@@ -753,25 +801,28 @@ namespace Scheduler.Tests.xUnit
         public void validate_some_day_filled_properties_frecuency()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.OccurrenceAmount = 1;
-            configuration.Occurrence = Enumerations.Occurrence.Monthly;
-            configuration.LimitEndDate = new DateTime(2099, 1, 1);
-
-            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
-            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
-            configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
-            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 1;
-            configuration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(3, 0, 0);
-            configuration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(6, 0, 0);
-
-            configuration.MonthlyConfiguration = new MonthlyConfiguration();
-            configuration.MonthlyConfiguration.SomeDay = true;
-            configuration.MonthlyConfiguration.MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Thursday;
-            configuration.MonthlyConfiguration.SomeDayMonthFrecuency = 3;
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Thursday,
+                    SomeDayMonthFrecuency = 3
+                }
+            };
 
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
             Assert.Equal("You should insert Frecuency if you set Some Day.", exception.Message);
@@ -781,25 +832,28 @@ namespace Scheduler.Tests.xUnit
         public void validate_some_day_filled_properties_weekday()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.OccurrenceAmount = 1;
-            configuration.Occurrence = Enumerations.Occurrence.Monthly;
-            configuration.LimitEndDate = new DateTime(2099, 1, 1);
-
-            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
-            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
-            configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
-            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 1;
-            configuration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(3, 0, 0);
-            configuration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(6, 0, 0);
-
-            configuration.MonthlyConfiguration = new MonthlyConfiguration();
-            configuration.MonthlyConfiguration.SomeDay = true;
-            configuration.MonthlyConfiguration.Frecuency = Enumerations.Frecuency.First;
-            configuration.MonthlyConfiguration.SomeDayMonthFrecuency = 3;
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    Frecuency = Enumerations.Frecuency.First,
+                    SomeDayMonthFrecuency = 3
+                }
+            };
 
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
             Assert.Equal("You should insert Weekday if you set Some Day.", exception.Message);
@@ -809,25 +863,28 @@ namespace Scheduler.Tests.xUnit
         public void validate_some_day_filled_properties_month_frecuency()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.OccurrenceAmount = 1;
-            configuration.Occurrence = Enumerations.Occurrence.Monthly;
-            configuration.LimitEndDate = new DateTime(2099, 1, 1);
-
-            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
-            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
-            configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
-            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 1;
-            configuration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(3, 0, 0);
-            configuration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(6, 0, 0);
-
-            configuration.MonthlyConfiguration = new MonthlyConfiguration();
-            configuration.MonthlyConfiguration.SomeDay = true;
-            configuration.MonthlyConfiguration.Frecuency = Enumerations.Frecuency.First;
-            configuration.MonthlyConfiguration.MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Thursday;
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    Frecuency = Enumerations.Frecuency.First,
+                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Thursday
+                }
+            };
 
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
             Assert.Equal("You should insert Month Frecuency if you set Some Day.", exception.Message);
@@ -837,26 +894,29 @@ namespace Scheduler.Tests.xUnit
         public void validate_some_day_filled_properties_month_frecuency_negative()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
-            Configuration configuration = new Configuration();
-
-            configuration.CurrentDate = dateTime;
-            configuration.Type = Enumerations.Type.Recurring;
-            configuration.OccurrenceAmount = 1;
-            configuration.Occurrence = Enumerations.Occurrence.Monthly;
-            configuration.LimitEndDate = new DateTime(2099, 1, 1);
-
-            configuration.DailyFrecuencyConfiguration = new DailyFrecuency();
-            configuration.DailyFrecuencyConfiguration.Type = Enumerations.Type.Recurring;
-            configuration.DailyFrecuencyConfiguration.DailyOccurrence = Enumerations.DailyOccurrence.Hours;
-            configuration.DailyFrecuencyConfiguration.OccurrenceAmount = 1;
-            configuration.DailyFrecuencyConfiguration.TimeStart = new TimeSpan(3, 0, 0);
-            configuration.DailyFrecuencyConfiguration.TimeEnd = new TimeSpan(6, 0, 0);
-
-            configuration.MonthlyConfiguration = new MonthlyConfiguration();
-            configuration.MonthlyConfiguration.SomeDay = true;
-            configuration.MonthlyConfiguration.Frecuency = Enumerations.Frecuency.First;
-            configuration.MonthlyConfiguration.MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Thursday;
-            configuration.MonthlyConfiguration.SomeDayMonthFrecuency = -3;
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    Frecuency = Enumerations.Frecuency.First,
+                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Thursday,
+                    SomeDayMonthFrecuency = -3
+                }
+            };
 
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
             Assert.Equal("You should insert positive Month Frecuency.", exception.Message);
