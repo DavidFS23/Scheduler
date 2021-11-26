@@ -69,7 +69,7 @@ namespace Scheduler
         private static DateCalculation CalculateMonthlyConfigurationSomeDay(DateTime newDate, Configuration configuration)
         {
             var dailyFrecuencyCalculation = Scheduler.CalculateDailyFrecuency(newDate, configuration);
-            bool DailyFrecuencyCalculated = true;
+            bool dailyFrecuencyCalculated = true;
             if (IsSelectedDay(configuration.MonthlyConfiguration.MonthlyConfigurationWeekDay.Value, dailyFrecuencyCalculation.date) && dailyFrecuencyCalculation.IsDefinitive)
             {
                 dailyFrecuencyCalculation.DailyFrecuencyCalculated = true;
@@ -83,7 +83,7 @@ namespace Scheduler
                 {
                     newDate = newDate.AddDays(-1);
                 }
-                return new DateCalculation() { date = newDate, IsDefinitive = false, DailyFrecuencyCalculated = DailyFrecuencyCalculated };
+                return new DateCalculation() { date = newDate, IsDefinitive = false, DailyFrecuencyCalculated = dailyFrecuencyCalculated };
             }
             int actualOccurence = 1;
             int numberOfOccurrences = Scheduler.GetNumberOfOccurrences(configuration.MonthlyConfiguration.Frecuency);
@@ -102,7 +102,7 @@ namespace Scheduler
                 newDate = newDate.AddDays(1);
                 isSelectedDay = IsSelectedDay(configuration.MonthlyConfiguration.MonthlyConfigurationWeekDay.Value, newDate);
             }
-            return new DateCalculation() { date = newDate, IsDefinitive = false, DailyFrecuencyCalculated = DailyFrecuencyCalculated };
+            return new DateCalculation() { date = newDate, IsDefinitive = false, DailyFrecuencyCalculated = dailyFrecuencyCalculated };
         }
 
         private static int GetNumberOfOccurrences(Frecuency? frecuency)
@@ -407,9 +407,9 @@ namespace Scheduler
             string description = string.Empty;
             if (configuration.DailyFrecuencyConfiguration.TimeFrecuency.HasValue)
             {
-                DateTime TimeFrecuencyDT = DateTime.Today.Add(configuration.DailyFrecuencyConfiguration.TimeFrecuency.Value);
-                string TimeFrecuencyStr = Scheduler.DeleteFirstZero(TimeFrecuencyDT.ToString("hh:mm tt").ToLower());
-                description += $"on {TimeFrecuencyStr} ";
+                DateTime timeFrecuencyDT = DateTime.Today.Add(configuration.DailyFrecuencyConfiguration.TimeFrecuency.Value);
+                string timeFrecuencyStr = Scheduler.DeleteFirstZero(timeFrecuencyDT.ToString("hh:mm tt").ToLower());
+                description += $"on {timeFrecuencyStr} ";
             }
             return description;
         }
@@ -419,12 +419,12 @@ namespace Scheduler
             string description = string.Empty;
             if (configuration.DailyFrecuencyConfiguration.TimeStart.HasValue && configuration.DailyFrecuencyConfiguration.TimeEnd.HasValue)
             {
-                DateTime TimeStartDT = DateTime.Today.Add(configuration.DailyFrecuencyConfiguration.TimeStart.Value);
-                string TimeStartStr = Scheduler.DeleteFirstZero(TimeStartDT.ToString("hh:mm tt").ToLower());
-                DateTime TimeEndDT = DateTime.Today.Add(configuration.DailyFrecuencyConfiguration.TimeEnd.Value);
-                string TimeEndStr = Scheduler.DeleteFirstZero(TimeEndDT.ToString("hh:mm tt").ToLower());
+                DateTime timeStartDT = DateTime.Today.Add(configuration.DailyFrecuencyConfiguration.TimeStart.Value);
+                string timeStartStr = Scheduler.DeleteFirstZero(timeStartDT.ToString("hh:mm tt").ToLower());
+                DateTime timeEndDT = DateTime.Today.Add(configuration.DailyFrecuencyConfiguration.TimeEnd.Value);
+                string timeEndStr = Scheduler.DeleteFirstZero(timeEndDT.ToString("hh:mm tt").ToLower());
 
-                description += $"between {TimeStartStr} and {TimeEndStr} ";
+                description += $"between {timeStartStr} and {timeEndStr} ";
             }
             return description;
         }
