@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace Scheduler.Tests.xUnit
@@ -72,15 +73,11 @@ namespace Scheduler.Tests.xUnit
                 LimitEndDate = new DateTime(2099, 1, 1)
             };
 
-            CalculationResult result1 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result1.NextExecutionTime;
-            CalculationResult result2 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result2.NextExecutionTime;
-            CalculationResult result3 = Scheduler.GenerateDate(configuration);
-
-            Assert.Equal(result1.NextExecutionTime, dateTime.AddDays(occurrenceAmount));
-            Assert.Equal(result2.NextExecutionTime, dateTime.AddDays(occurrenceAmount * 2));
-            Assert.Equal(result3.NextExecutionTime, dateTime.AddDays(occurrenceAmount * 3));
+            CalculationResult[] results = GetResults(configuration, 3);
+            for (int i = 1; i <= 3; i++)
+            {
+                Assert.Equal(results[i - 1].NextExecutionTime, dateTime.AddDays(occurrenceAmount * i));
+            }
         }
 
         [Theory]
@@ -101,15 +98,11 @@ namespace Scheduler.Tests.xUnit
                 LimitEndDate = new DateTime(2099, 1, 1)
             };
 
-            CalculationResult result1 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result1.NextExecutionTime;
-            CalculationResult result2 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result2.NextExecutionTime;
-            CalculationResult result3 = Scheduler.GenerateDate(configuration);
-            
-            Assert.Equal(result1.NextExecutionTime, dateTime.AddDays(occurrenceAmount * 7));
-            Assert.Equal(result2.NextExecutionTime, dateTime.AddDays((occurrenceAmount * 7) * 2));
-            Assert.Equal(result3.NextExecutionTime, dateTime.AddDays((occurrenceAmount * 7) * 3));
+            CalculationResult[] results = GetResults(configuration, 3);
+            for (int i = 1; i <= 3; i++)
+            {
+                Assert.Equal(results[i - 1].NextExecutionTime, dateTime.AddDays((occurrenceAmount * 7) * i));
+            }
         }
 
         [Theory]
@@ -130,15 +123,11 @@ namespace Scheduler.Tests.xUnit
                 LimitEndDate = new DateTime(2099, 1, 1)
             };
 
-            CalculationResult result1 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result1.NextExecutionTime;
-            CalculationResult result2 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result2.NextExecutionTime;
-            CalculationResult result3 = Scheduler.GenerateDate(configuration);
-
-            Assert.Equal(result1.NextExecutionTime, dateTime.AddMonths(occurrenceAmount));
-            Assert.Equal(result2.NextExecutionTime, dateTime.AddMonths(occurrenceAmount * 2));
-            Assert.Equal(result3.NextExecutionTime, dateTime.AddMonths(occurrenceAmount * 3));
+            CalculationResult[] results = GetResults(configuration, 3);
+            for (int i = 1; i <= 3; i++)
+            {
+                Assert.Equal(results[i - 1].NextExecutionTime, dateTime.AddMonths(occurrenceAmount * i));
+            }
         }
 
         [Fact]
@@ -175,12 +164,10 @@ namespace Scheduler.Tests.xUnit
                 LimitEndDate = new DateTime(5000, 1, 1)
             };
 
-            CalculationResult result = Scheduler.GenerateDate(configuration);
-            for (int i = 1; i < 1000; i++)
+            CalculationResult[] results = GetResults(configuration, 1000);
+            for (int i = 1; i <= 3; i++)
             {
-                Assert.Equal(dateTime.AddDays(i), result.NextExecutionTime);
-                configuration.CurrentDate = result.NextExecutionTime;
-                result = Scheduler.GenerateDate(configuration);
+                Assert.Equal(dateTime.AddDays(i), results[i - 1].NextExecutionTime);
             }
         }
 
@@ -200,8 +187,8 @@ namespace Scheduler.Tests.xUnit
                 }
             };
 
-            CalculationResult result = Scheduler.GenerateDate(configuration);
-            Assert.Equal(new DateTime(2021, 1, 3, 14, 30, 0), result.NextExecutionTime);
+            CalculationResult[] results = GetResults(configuration, 1);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2021, 1, 3, 14, 30, 0));
         }
 
         [Fact]
@@ -225,36 +212,17 @@ namespace Scheduler.Tests.xUnit
                 }
             };
 
-            CalculationResult result1 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result1.NextExecutionTime;
-            CalculationResult result2 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result2.NextExecutionTime;
-            CalculationResult result3 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result3.NextExecutionTime;
-            CalculationResult result4 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result4.NextExecutionTime;
-            CalculationResult result5 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result5.NextExecutionTime;
-            CalculationResult result6 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result6.NextExecutionTime;
-            CalculationResult result7 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result7.NextExecutionTime;
-            CalculationResult result8 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result8.NextExecutionTime;
-            CalculationResult result9 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result9.NextExecutionTime;
-            CalculationResult result10 = Scheduler.GenerateDate(configuration);
-
-            Assert.Equal(result1.NextExecutionTime, new DateTime(2021, 1, 1, 13, 0, 0));
-            Assert.Equal(result2.NextExecutionTime, new DateTime(2021, 1, 1, 15, 0, 0));
-            Assert.Equal(result3.NextExecutionTime, new DateTime(2021, 1, 1, 17, 0, 0));
-            Assert.Equal(result4.NextExecutionTime, new DateTime(2021, 1, 3, 13, 0, 0));
-            Assert.Equal(result5.NextExecutionTime, new DateTime(2021, 1, 3, 15, 0, 0));
-            Assert.Equal(result6.NextExecutionTime, new DateTime(2021, 1, 3, 17, 0, 0));
-            Assert.Equal(result7.NextExecutionTime, new DateTime(2021, 1, 5, 13, 0, 0));
-            Assert.Equal(result8.NextExecutionTime, new DateTime(2021, 1, 5, 15, 0, 0));
-            Assert.Equal(result9.NextExecutionTime, new DateTime(2021, 1, 5, 17, 0, 0));
-            Assert.Equal(result10.NextExecutionTime, new DateTime(2021, 1, 7, 13, 0, 0));
+            CalculationResult[] results = GetResults(configuration, 10);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2021, 1, 1, 13, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2021, 1, 1, 15, 0, 0));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2021, 1, 1, 17, 0, 0));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2021, 1, 3, 13, 0, 0));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2021, 1, 3, 15, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2021, 1, 3, 17, 0, 0));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2021, 1, 5, 13, 0, 0));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2021, 1, 5, 15, 0, 0));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2021, 1, 5, 17, 0, 0));
+            Assert.Equal(results[9].NextExecutionTime, new DateTime(2021, 1, 7, 13, 0, 0));
         }
 
         [Fact]
@@ -278,36 +246,17 @@ namespace Scheduler.Tests.xUnit
                 }
             };
 
-            CalculationResult result1 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result1.NextExecutionTime;
-            CalculationResult result2 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result2.NextExecutionTime;
-            CalculationResult result3 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result3.NextExecutionTime;
-            CalculationResult result4 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result4.NextExecutionTime;
-            CalculationResult result5 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result5.NextExecutionTime;
-            CalculationResult result6 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result6.NextExecutionTime;
-            CalculationResult result7 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result7.NextExecutionTime;
-            CalculationResult result8 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result8.NextExecutionTime;
-            CalculationResult result9 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result9.NextExecutionTime;
-            CalculationResult result10 = Scheduler.GenerateDate(configuration);
-
-            Assert.Equal(result1.NextExecutionTime, new DateTime(2021, 1, 1, 13, 0, 0));
-            Assert.Equal(result2.NextExecutionTime, new DateTime(2021, 1, 1, 13, 2, 0));
-            Assert.Equal(result3.NextExecutionTime, new DateTime(2021, 1, 1, 13, 4, 0));
-            Assert.Equal(result4.NextExecutionTime, new DateTime(2021, 1, 1, 13, 6, 0));
-            Assert.Equal(result5.NextExecutionTime, new DateTime(2021, 1, 3, 13, 0, 0));
-            Assert.Equal(result6.NextExecutionTime, new DateTime(2021, 1, 3, 13, 2, 0));
-            Assert.Equal(result7.NextExecutionTime, new DateTime(2021, 1, 3, 13, 4, 0));
-            Assert.Equal(result8.NextExecutionTime, new DateTime(2021, 1, 3, 13, 6, 0));
-            Assert.Equal(result9.NextExecutionTime, new DateTime(2021, 1, 5, 13, 0, 0));
-            Assert.Equal(result10.NextExecutionTime, new DateTime(2021, 1, 5, 13, 2, 0));
+            CalculationResult[] results = GetResults(configuration, 10);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2021, 1, 1, 13, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2021, 1, 1, 13, 2, 0));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2021, 1, 1, 13, 4, 0));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2021, 1, 1, 13, 6, 0));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2021, 1, 3, 13, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2021, 1, 3, 13, 2, 0));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2021, 1, 3, 13, 4, 0));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2021, 1, 3, 13, 6, 0));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2021, 1, 5, 13, 0, 0));
+            Assert.Equal(results[9].NextExecutionTime, new DateTime(2021, 1, 5, 13, 2, 0));
         }
 
         [Fact]
@@ -331,36 +280,17 @@ namespace Scheduler.Tests.xUnit
                 }
             };
 
-            CalculationResult result1 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result1.NextExecutionTime;
-            CalculationResult result2 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result2.NextExecutionTime;
-            CalculationResult result3 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result3.NextExecutionTime;
-            CalculationResult result4 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result4.NextExecutionTime;
-            CalculationResult result5 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result5.NextExecutionTime;
-            CalculationResult result6 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result6.NextExecutionTime;
-            CalculationResult result7 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result7.NextExecutionTime;
-            CalculationResult result8 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result8.NextExecutionTime;
-            CalculationResult result9 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result9.NextExecutionTime;
-            CalculationResult result10 = Scheduler.GenerateDate(configuration);
-
-            Assert.Equal(result1.NextExecutionTime, new DateTime(2021, 1, 1, 13, 0, 0));
-            Assert.Equal(result2.NextExecutionTime, new DateTime(2021, 1, 1, 13, 0, 2));
-            Assert.Equal(result3.NextExecutionTime, new DateTime(2021, 1, 1, 13, 0, 4));
-            Assert.Equal(result4.NextExecutionTime, new DateTime(2021, 1, 1, 13, 0, 6));
-            Assert.Equal(result5.NextExecutionTime, new DateTime(2021, 1, 3, 13, 0, 0));
-            Assert.Equal(result6.NextExecutionTime, new DateTime(2021, 1, 3, 13, 0, 2));
-            Assert.Equal(result7.NextExecutionTime, new DateTime(2021, 1, 3, 13, 0, 4));
-            Assert.Equal(result8.NextExecutionTime, new DateTime(2021, 1, 3, 13, 0, 6));
-            Assert.Equal(result9.NextExecutionTime, new DateTime(2021, 1, 5, 13, 0, 0));
-            Assert.Equal(result10.NextExecutionTime, new DateTime(2021, 1, 5, 13, 0, 2));
+            CalculationResult[] results = GetResults(configuration, 10);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2021, 1, 1, 13, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2021, 1, 1, 13, 0, 2));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2021, 1, 1, 13, 0, 4));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2021, 1, 1, 13, 0, 6));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2021, 1, 3, 13, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2021, 1, 3, 13, 0, 2));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2021, 1, 3, 13, 0, 4));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2021, 1, 3, 13, 0, 6));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2021, 1, 5, 13, 0, 0));
+            Assert.Equal(results[9].NextExecutionTime, new DateTime(2021, 1, 5, 13, 0, 2));
         }
 
         [Theory]
@@ -518,33 +448,16 @@ namespace Scheduler.Tests.xUnit
                 }
             };
 
-            CalculationResult result1 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result1.NextExecutionTime;
-            CalculationResult result2 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result2.NextExecutionTime;
-            CalculationResult result3 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result3.NextExecutionTime;
-            CalculationResult result4 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result4.NextExecutionTime;
-            CalculationResult result5 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result5.NextExecutionTime;
-            CalculationResult result6 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result6.NextExecutionTime;
-            CalculationResult result7 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result7.NextExecutionTime;
-            CalculationResult result8 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result8.NextExecutionTime;
-            CalculationResult result9 = Scheduler.GenerateDate(configuration);
-
-            Assert.Equal(result1.NextExecutionTime, new DateTime(2020, 1, 8, 4, 0, 0));
-            Assert.Equal(result2.NextExecutionTime, new DateTime(2020, 1, 8, 6, 0, 0));
-            Assert.Equal(result3.NextExecutionTime, new DateTime(2020, 1, 8, 8, 0, 0));
-            Assert.Equal(result4.NextExecutionTime, new DateTime(2020, 4, 8, 4, 0, 0));
-            Assert.Equal(result5.NextExecutionTime, new DateTime(2020, 4, 8, 6, 0, 0));
-            Assert.Equal(result6.NextExecutionTime, new DateTime(2020, 4, 8, 8, 0, 0));
-            Assert.Equal(result7.NextExecutionTime, new DateTime(2020, 7, 8, 4, 0, 0));
-            Assert.Equal(result8.NextExecutionTime, new DateTime(2020, 7, 8, 6, 0, 0));
-            Assert.Equal(result9.NextExecutionTime, new DateTime(2020, 7, 8, 8, 0, 0));
+            CalculationResult[] results = GetResults(configuration, 9);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2020, 1, 8, 4, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2020, 1, 8, 6, 0, 0));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2020, 1, 8, 8, 0, 0));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2020, 4, 8, 4, 0, 0));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2020, 4, 8, 6, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2020, 4, 8, 8, 0, 0));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2020, 7, 8, 4, 0, 0));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2020, 7, 8, 6, 0, 0));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2020, 7, 8, 8, 0, 0));
         }
 
         [Fact]
@@ -575,33 +488,16 @@ namespace Scheduler.Tests.xUnit
                 }
             };
 
-            CalculationResult result1 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result1.NextExecutionTime;
-            CalculationResult result2 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result2.NextExecutionTime;
-            CalculationResult result3 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result3.NextExecutionTime;
-            CalculationResult result4 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result4.NextExecutionTime;
-            CalculationResult result5 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result5.NextExecutionTime;
-            CalculationResult result6 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result6.NextExecutionTime;
-            CalculationResult result7 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result7.NextExecutionTime;
-            CalculationResult result8 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result8.NextExecutionTime;
-            CalculationResult result9 = Scheduler.GenerateDate(configuration);
-
-            Assert.Equal(result1.NextExecutionTime, new DateTime(2020, 1, 2, 3, 0, 0));
-            Assert.Equal(result2.NextExecutionTime, new DateTime(2020, 1, 2, 4, 0, 0));
-            Assert.Equal(result3.NextExecutionTime, new DateTime(2020, 1, 2, 5, 0, 0));
-            Assert.Equal(result4.NextExecutionTime, new DateTime(2020, 1, 2, 6, 0, 0));
-            Assert.Equal(result5.NextExecutionTime, new DateTime(2020, 4, 2, 3, 0, 0));
-            Assert.Equal(result6.NextExecutionTime, new DateTime(2020, 4, 2, 4, 0, 0));
-            Assert.Equal(result7.NextExecutionTime, new DateTime(2020, 4, 2, 5, 0, 0));
-            Assert.Equal(result8.NextExecutionTime, new DateTime(2020, 4, 2, 6, 0, 0));
-            Assert.Equal(result9.NextExecutionTime, new DateTime(2020, 7, 2, 3, 0, 0));
+            CalculationResult[] results = GetResults(configuration, 9);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2020, 1, 2, 3, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2020, 1, 2, 4, 0, 0));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2020, 1, 2, 5, 0, 0));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2020, 1, 2, 6, 0, 0));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2020, 4, 2, 3, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2020, 4, 2, 4, 0, 0));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2020, 4, 2, 5, 0, 0));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2020, 4, 2, 6, 0, 0));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2020, 7, 2, 3, 0, 0));
         }
 
         [Fact]
@@ -632,42 +528,19 @@ namespace Scheduler.Tests.xUnit
                 }
             };
 
-            CalculationResult result1 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result1.NextExecutionTime;
-            CalculationResult result2 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result2.NextExecutionTime;
-            CalculationResult result3 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result3.NextExecutionTime;
-            CalculationResult result4 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result4.NextExecutionTime;
-            CalculationResult result5 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result5.NextExecutionTime;
-            CalculationResult result6 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result6.NextExecutionTime;
-            CalculationResult result7 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result7.NextExecutionTime;
-            CalculationResult result8 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result8.NextExecutionTime;
-            CalculationResult result9 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result9.NextExecutionTime;
-            CalculationResult result10 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result10.NextExecutionTime;
-            CalculationResult result11 = Scheduler.GenerateDate(configuration);
-            configuration.CurrentDate = result11.NextExecutionTime;
-            CalculationResult result12 = Scheduler.GenerateDate(configuration);
-
-            Assert.Equal(result1.NextExecutionTime, new DateTime(2020, 1, 5, 3, 0, 0));
-            Assert.Equal(result2.NextExecutionTime, new DateTime(2020, 1, 5, 4, 0, 0));
-            Assert.Equal(result3.NextExecutionTime, new DateTime(2020, 1, 5, 5, 0, 0));
-            Assert.Equal(result4.NextExecutionTime, new DateTime(2020, 1, 5, 6, 0, 0));
-            Assert.Equal(result5.NextExecutionTime, new DateTime(2020, 2, 2, 3, 0, 0));
-            Assert.Equal(result6.NextExecutionTime, new DateTime(2020, 2, 2, 4, 0, 0));
-            Assert.Equal(result7.NextExecutionTime, new DateTime(2020, 2, 2, 5, 0, 0));
-            Assert.Equal(result8.NextExecutionTime, new DateTime(2020, 2, 2, 6, 0, 0));
-            Assert.Equal(result9.NextExecutionTime, new DateTime(2020, 3, 7, 3, 0, 0));
-            Assert.Equal(result10.NextExecutionTime, new DateTime(2020, 3, 7, 4, 0, 0));
-            Assert.Equal(result11.NextExecutionTime, new DateTime(2020, 3, 7, 5, 0, 0));
-            Assert.Equal(result12.NextExecutionTime, new DateTime(2020, 3, 7, 6, 0, 0));
+            CalculationResult[] results = GetResults(configuration, 12);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2020, 1, 5, 3, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2020, 1, 5, 4, 0, 0));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2020, 1, 5, 5, 0, 0));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2020, 1, 5, 6, 0, 0));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2020, 2, 2, 3, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2020, 2, 2, 4, 0, 0));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2020, 2, 2, 5, 0, 0));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2020, 2, 2, 6, 0, 0));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2020, 3, 7, 3, 0, 0));
+            Assert.Equal(results[9].NextExecutionTime, new DateTime(2020, 3, 7, 4, 0, 0));
+            Assert.Equal(results[10].NextExecutionTime, new DateTime(2020, 3, 7, 5, 0, 0));
+            Assert.Equal(results[11].NextExecutionTime, new DateTime(2020, 3, 7, 6, 0, 0));
         }
 
         [Fact]
@@ -920,6 +793,17 @@ namespace Scheduler.Tests.xUnit
 
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
             Assert.Equal("You should insert positive Month Frecuency.", exception.Message);
+        }
+
+        private CalculationResult[] GetResults(Configuration configuration, int numberOfResults)
+        {
+            CalculationResult[] results = new CalculationResult[numberOfResults];
+            for (int i = 1; i <= numberOfResults; i++)
+            {
+                results[i - 1] = Scheduler.GenerateDate(configuration);
+                configuration.CurrentDate = results[i - 1].NextExecutionTime;
+            }
+            return results;
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Scheduler
 {
-    public class CalculationResult
+    public struct CalculationResult
     {
         public DateTime NextExecutionTime { get; set; }
         public string Description { get; set; }
