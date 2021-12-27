@@ -134,7 +134,8 @@ namespace Scheduler.Tests.xUnit
         public void calculate_next_date_without_config()
         {
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(null));
-            Assert.Equal("The parameter Configuration should not be null.", exception.Message);
+            string expected = "The parameter Configuration should not be null.";
+            Assert.Equal(expected, exception.Message);
         }
 
         [Fact]
@@ -149,7 +150,8 @@ namespace Scheduler.Tests.xUnit
             };
 
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
-            Assert.Equal("If the configuration is Recurring, you should add Limit End Date.", exception.Message);
+            string expected = "If the configuration is Recurring, you should add Limit End Date.";
+            Assert.Equal(expected, exception.Message);
         }
 
         [Fact]
@@ -169,6 +171,9 @@ namespace Scheduler.Tests.xUnit
             {
                 Assert.Equal(dateTime.AddDays(i), results[i - 1].NextExecutionTime);
             }
+            string description = results[0].Description;
+            string ExpectedText = "Occurs every day. Schedule will be used on 02/01/2000 at 00:00 ending on 01/01/5000";
+            Assert.Equal(ExpectedText, description);
         }
 
         [Fact]
@@ -189,6 +194,9 @@ namespace Scheduler.Tests.xUnit
 
             CalculationResult[] results = GetResults(configuration, 1);
             Assert.Equal(results[0].NextExecutionTime, new DateTime(2021, 1, 3, 14, 30, 0));
+            string description = results[0].Description;
+            string ExpectedText = "Occurs once. Schedule will be used on 03/01/2021 at 14:30 on 2:30 pm starting on 01/01/2021";
+            Assert.Equal(ExpectedText, description);
         }
 
         [Fact]
@@ -223,6 +231,10 @@ namespace Scheduler.Tests.xUnit
             Assert.Equal(results[7].NextExecutionTime, new DateTime(2021, 1, 5, 15, 0, 0));
             Assert.Equal(results[8].NextExecutionTime, new DateTime(2021, 1, 5, 17, 0, 0));
             Assert.Equal(results[9].NextExecutionTime, new DateTime(2021, 1, 7, 13, 0, 0));
+
+            string description = results[0].Description;
+            string ExpectedText = "Occurs every day. Schedule will be used on 01/01/2021 at 13:00 ending on 10/01/2021 every 2 hours between 1:00 pm and 5:00 pm starting on 01/01/2021";
+            Assert.Equal(ExpectedText, description);
         }
 
         [Fact]
@@ -257,6 +269,10 @@ namespace Scheduler.Tests.xUnit
             Assert.Equal(results[7].NextExecutionTime, new DateTime(2021, 1, 3, 13, 6, 0));
             Assert.Equal(results[8].NextExecutionTime, new DateTime(2021, 1, 5, 13, 0, 0));
             Assert.Equal(results[9].NextExecutionTime, new DateTime(2021, 1, 5, 13, 2, 0));
+
+            string description = results[0].Description;
+            string ExpectedText = "Occurs every day. Schedule will be used on 01/01/2021 at 13:00 ending on 10/01/2021 every 2 minutes between 1:00 pm and 1:06 pm starting on 01/01/2021";
+            Assert.Equal(ExpectedText, description);
         }
 
         [Fact]
@@ -291,6 +307,11 @@ namespace Scheduler.Tests.xUnit
             Assert.Equal(results[7].NextExecutionTime, new DateTime(2021, 1, 3, 13, 0, 6));
             Assert.Equal(results[8].NextExecutionTime, new DateTime(2021, 1, 5, 13, 0, 0));
             Assert.Equal(results[9].NextExecutionTime, new DateTime(2021, 1, 5, 13, 0, 2));
+
+
+            string description = results[0].Description;
+            string ExpectedText = "Occurs every day. Schedule will be used on 01/01/2021 at 13:00 ending on 10/01/2021 every 2 seconds between 1:00 pm and 1:00 pm starting on 01/01/2021";
+            Assert.Equal(ExpectedText, description);
         }
 
         [Theory]
@@ -335,7 +356,8 @@ namespace Scheduler.Tests.xUnit
         public void validation_configuration_not_null()
         {
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(null));
-            Assert.Equal("The parameter Configuration should not be null.", exception.Message);
+            string expectedText = "The parameter Configuration should not be null.";
+            Assert.Equal(expectedText, exception.Message);
         }
 
         [Fact]
@@ -350,7 +372,8 @@ namespace Scheduler.Tests.xUnit
                 Occurrence = Enumerations.Occurrence.Daily
             };
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
-            Assert.Equal("If the configuration is Recurring, you should add Limit End Date.", exception.Message);
+            string expectedText = "If the configuration is Recurring, you should add Limit End Date.";
+            Assert.Equal(expectedText, exception.Message);
         }
 
         [Fact]
@@ -396,7 +419,8 @@ namespace Scheduler.Tests.xUnit
                 }
             };
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
-            Assert.Equal("If the configuration is Daily Frecuency, you should add Start and End Time.", exception.Message);
+            string expectedText = "If the configuration is Daily Frecuency, you should add Start and End Time.";
+            Assert.Equal(expectedText, exception.Message);
         }
 
         [Fact]
@@ -418,7 +442,8 @@ namespace Scheduler.Tests.xUnit
                 }
             };
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
-            Assert.Equal("If the configuration is Daily Frecuency, you should add Start and End Time.", exception.Message);
+            string expectedText = "If the configuration is Daily Frecuency, you should add Start and End Time.";
+            Assert.Equal(expectedText, exception.Message);
         }
 
         [Fact]
@@ -458,6 +483,11 @@ namespace Scheduler.Tests.xUnit
             Assert.Equal(results[6].NextExecutionTime, new DateTime(2020, 7, 8, 4, 0, 0));
             Assert.Equal(results[7].NextExecutionTime, new DateTime(2020, 7, 8, 6, 0, 0));
             Assert.Equal(results[8].NextExecutionTime, new DateTime(2020, 7, 8, 8, 0, 0));
+
+
+            string description = results[0].Description;
+            string ExpectedText = "Occurs every 2 hours between 4:00 am and 8:00 am starting on 01/01/2020";
+            Assert.Equal(ExpectedText, description);
         }
 
         [Fact]
@@ -498,6 +528,11 @@ namespace Scheduler.Tests.xUnit
             Assert.Equal(results[6].NextExecutionTime, new DateTime(2020, 4, 2, 5, 0, 0));
             Assert.Equal(results[7].NextExecutionTime, new DateTime(2020, 4, 2, 6, 0, 0));
             Assert.Equal(results[8].NextExecutionTime, new DateTime(2020, 7, 2, 3, 0, 0));
+
+
+            string description = results[0].Description;
+            string expectedText = "Occurs the first thursday of every 3 months every 1 hour between 3:00 am and 6:00 am starting on 01/01/2020";
+            Assert.Equal(expectedText, description);
         }
 
         [Fact]
@@ -541,6 +576,11 @@ namespace Scheduler.Tests.xUnit
             Assert.Equal(results[9].NextExecutionTime, new DateTime(2020, 3, 7, 4, 0, 0));
             Assert.Equal(results[10].NextExecutionTime, new DateTime(2020, 3, 7, 5, 0, 0));
             Assert.Equal(results[11].NextExecutionTime, new DateTime(2020, 3, 7, 6, 0, 0));
+
+
+            string description = results[0].Description;
+            string expectedText = "Occurs the second weekend of every 1 months every 1 hour between 3:00 am and 6:00 am starting on 01/01/2020";
+            Assert.Equal(expectedText, description);
         }
 
         [Fact]
@@ -573,8 +613,8 @@ namespace Scheduler.Tests.xUnit
 
             CalculationResult result1 = Scheduler.GenerateDate(configuration);
             string description = result1.Description;
-            string ExpectedText = "Occurs the first thursday of every 3 months every 1 hour between 3:00 am and 6:00 am starting on 01/01/2020";
-            Assert.Equal(ExpectedText, description);
+            string expectedText = "Occurs the first thursday of every 3 months every 1 hour between 3:00 am and 6:00 am starting on 01/01/2020";
+            Assert.Equal(expectedText, description);
         }
 
         [Fact]
@@ -607,7 +647,8 @@ namespace Scheduler.Tests.xUnit
             };
 
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
-            Assert.Equal("You should not select Concrete Day and Some Day at the same time.", exception.Message);
+            string expectedText = "You should not select Concrete Day and Some Day at the same time.";
+            Assert.Equal(expectedText, exception.Message);
         }
 
         [Fact]
@@ -637,7 +678,8 @@ namespace Scheduler.Tests.xUnit
             };
 
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
-            Assert.Equal("You should insert a positive Day Number if you set Concrete Day.", exception.Message);
+            string expectedText = "You should insert a positive Day Number if you set Concrete Day.";
+            Assert.Equal(expectedText, exception.Message);
         }
 
         [Fact]
@@ -667,7 +709,8 @@ namespace Scheduler.Tests.xUnit
             };
 
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
-            Assert.Equal("You should insert Month Frecuency if you set Concrete Day.", exception.Message);
+            string expectedText = "You should insert Month Frecuency if you set Concrete Day.";
+            Assert.Equal(expectedText, exception.Message);
         }
 
         [Fact]
@@ -698,7 +741,8 @@ namespace Scheduler.Tests.xUnit
             };
 
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
-            Assert.Equal("You should insert Frecuency if you set Some Day.", exception.Message);
+            string expectedText = "You should insert Frecuency if you set Some Day.";
+            Assert.Equal(expectedText, exception.Message);
         }
 
         [Fact]
@@ -729,7 +773,8 @@ namespace Scheduler.Tests.xUnit
             };
 
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
-            Assert.Equal("You should insert Weekday if you set Some Day.", exception.Message);
+            string expectedText = "You should insert Weekday if you set Some Day.";
+            Assert.Equal(expectedText, exception.Message);
         }
 
         [Fact]
@@ -760,7 +805,8 @@ namespace Scheduler.Tests.xUnit
             };
 
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
-            Assert.Equal("You should insert Month Frecuency if you set Some Day.", exception.Message);
+            string expectedText = "You should insert Month Frecuency if you set Some Day.";
+            Assert.Equal(expectedText, exception.Message);
         }
 
         [Fact]
@@ -792,7 +838,8 @@ namespace Scheduler.Tests.xUnit
             };
 
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
-            Assert.Equal("You should insert positive Month Frecuency.", exception.Message);
+            string expectedText = "You should insert positive Month Frecuency.";
+            Assert.Equal(expectedText, exception.Message);
         }
 
         private CalculationResult[] GetResults(Configuration configuration, int numberOfResults)
