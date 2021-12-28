@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
 using static Scheduler.Enumerations;
 
 namespace Scheduler
@@ -9,7 +7,7 @@ namespace Scheduler
     {
         public DateTime CurrentDate { get; set; }
         public Enumerations.Type Type { get; set; }
-        public DateTime? DateTime { get; set; }
+        public DateTime? DateTime { get; }
         public Enumerations.Occurrence Occurrence { get; set; }
         public int OccurrenceAmount { get; set; }
 

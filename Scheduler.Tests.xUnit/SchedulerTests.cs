@@ -1,9 +1,9 @@
 using System;
-using System.Collections.Generic;
 using Xunit;
 
 namespace Scheduler.Tests.xUnit
 {
+
     public class SchedulerTests
     {
 
@@ -16,6 +16,7 @@ namespace Scheduler.Tests.xUnit
         public void calculate_next_date_once(int year, int month, int day, int occurrenceAmount)
         {
             DateTime dateTime = new DateTime(year, month, day);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -30,6 +31,7 @@ namespace Scheduler.Tests.xUnit
         public void calculate_description_without_limit_dates()
         {
             DateTime dateTime = new DateTime(2021, 1, 1, 14, 0, 0);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -44,6 +46,7 @@ namespace Scheduler.Tests.xUnit
         public void calculate_description_with_limit_dates()
         {
             DateTime dateTime = new DateTime(2021, 1, 5, 16, 0, 0);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -65,6 +68,7 @@ namespace Scheduler.Tests.xUnit
         public void calculate_next_date_recurring_daily(int year, int month, int day, int occurrenceAmount)
         {
             DateTime dateTime = new DateTime(year, month, day);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -89,6 +93,7 @@ namespace Scheduler.Tests.xUnit
         public void calculate_next_date_recurring_weekly(int year, int month, int day, int occurrenceAmount)
         {
             DateTime dateTime = new DateTime(year, month, day);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -114,6 +119,7 @@ namespace Scheduler.Tests.xUnit
         public void calculate_next_date_recurring_monthly(int year, int month, int day, int occurrenceAmount)
         {
             DateTime dateTime = new DateTime(year, month, day);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -142,6 +148,7 @@ namespace Scheduler.Tests.xUnit
         public void calculate_next_date_recurring_without_limit_date()
         {
             DateTime dateTime = new DateTime(2021, 1, 1);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -158,6 +165,7 @@ namespace Scheduler.Tests.xUnit
         public void calculate_next_date_recurring_with_high_limit_date()
         {
             DateTime dateTime = new DateTime(2000, 1, 1);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -180,6 +188,7 @@ namespace Scheduler.Tests.xUnit
         public void dailyfrecuency_ocurs_once()
         {
             DateTime dateTime = new DateTime(2021, 1, 1);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -203,6 +212,7 @@ namespace Scheduler.Tests.xUnit
         public void dailyfrecuency_ocurs_every_x_hours()
         {
             DateTime dateTime = new DateTime(2021, 1, 1);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -241,6 +251,7 @@ namespace Scheduler.Tests.xUnit
         public void dailyfrecuency_ocurs_every_x_minutes()
         {
             DateTime dateTime = new DateTime(2021, 1, 1);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -279,6 +290,7 @@ namespace Scheduler.Tests.xUnit
         public void dailyfrecuency_ocurs_every_x_seconds()
         {
             DateTime dateTime = new DateTime(2021, 1, 1);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -308,48 +320,59 @@ namespace Scheduler.Tests.xUnit
             Assert.Equal(results[8].NextExecutionTime, new DateTime(2021, 1, 5, 13, 0, 0));
             Assert.Equal(results[9].NextExecutionTime, new DateTime(2021, 1, 5, 13, 0, 2));
 
-
             string description = results[0].Description;
             string ExpectedText = "Occurs every day. Schedule will be used on 01/01/2021 at 13:00 ending on 10/01/2021 every 2 seconds between 1:00 pm and 1:00 pm starting on 01/01/2021";
             Assert.Equal(ExpectedText, description);
         }
 
-        [Theory]
-        [InlineData(DayOfWeek.Monday)]
-        [InlineData(DayOfWeek.Tuesday)]
-        [InlineData(DayOfWeek.Wednesday)]
-        [InlineData(DayOfWeek.Thursday)]
-        [InlineData(DayOfWeek.Friday)]
-        [InlineData(DayOfWeek.Saturday)]
-        [InlineData(DayOfWeek.Sunday)]
-        public void getweekday_method_test(DayOfWeek dayOfWeek)
+
+        [Fact]
+        public void getweekday_method_test_Monday()
         {
-            var weekDay = Scheduler.GetWeekDay(dayOfWeek);
-            switch (dayOfWeek)
-            {
-                case DayOfWeek.Monday:
-                    Assert.Equal(Enumerations.Weekday.Monday, weekDay);
-                    break;
-                case DayOfWeek.Tuesday:
-                    Assert.Equal(Enumerations.Weekday.Tuesday, weekDay);
-                    break;
-                case DayOfWeek.Wednesday:
-                    Assert.Equal(Enumerations.Weekday.Wednesday, weekDay);
-                    break;
-                case DayOfWeek.Thursday:
-                    Assert.Equal(Enumerations.Weekday.Thursday, weekDay);
-                    break;
-                case DayOfWeek.Friday:
-                    Assert.Equal(Enumerations.Weekday.Friday, weekDay);
-                    break;
-                case DayOfWeek.Saturday:
-                    Assert.Equal(Enumerations.Weekday.Saturday, weekDay);
-                    break;
-                case DayOfWeek.Sunday:
-                default:
-                    Assert.Equal(Enumerations.Weekday.Sunday, weekDay);
-                    break;
-            }
+            var weekDay = Scheduler.GetWeekDay(DayOfWeek.Monday);
+            Assert.Equal(Enumerations.Weekday.Monday, weekDay);
+        }
+
+        [Fact]
+        public void getweekday_method_test_Tuesday()
+        {
+            var weekDay = Scheduler.GetWeekDay(DayOfWeek.Tuesday);
+            Assert.Equal(Enumerations.Weekday.Tuesday, weekDay);
+        }
+
+        [Fact]
+        public void getweekday_method_test_Wednesday()
+        {
+            var weekDay = Scheduler.GetWeekDay(DayOfWeek.Wednesday);
+            Assert.Equal(Enumerations.Weekday.Wednesday, weekDay);
+        }
+
+        [Fact]
+        public void getweekday_method_test_Thursday()
+        {
+            var weekDay = Scheduler.GetWeekDay(DayOfWeek.Thursday);
+            Assert.Equal(Enumerations.Weekday.Thursday, weekDay);
+        }
+
+        [Fact]
+        public void getweekday_method_test_Friday()
+        {
+            var weekDay = Scheduler.GetWeekDay(DayOfWeek.Friday);
+            Assert.Equal(Enumerations.Weekday.Friday, weekDay);
+        }
+
+        [Fact]
+        public void getweekday_method_test_Saturday()
+        {
+            var weekDay = Scheduler.GetWeekDay(DayOfWeek.Saturday);
+            Assert.Equal(Enumerations.Weekday.Saturday, weekDay);
+        }
+
+        [Fact]
+        public void getweekday_method_test_Sunday()
+        {
+            var weekDay = Scheduler.GetWeekDay(DayOfWeek.Sunday);
+            Assert.Equal(Enumerations.Weekday.Sunday, weekDay);
         }
 
         [Fact]
@@ -364,6 +387,7 @@ namespace Scheduler.Tests.xUnit
         public void validation_configuration_recurring_without_limit_date()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -371,6 +395,7 @@ namespace Scheduler.Tests.xUnit
                 OccurrenceAmount = 1,
                 Occurrence = Enumerations.Occurrence.Daily
             };
+
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
             string expectedText = "If the configuration is Recurring, you should add Limit End Date.";
             Assert.Equal(expectedText, exception.Message);
@@ -380,6 +405,7 @@ namespace Scheduler.Tests.xUnit
         public void validation_configuration_daily_frecuency_without_time_start()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -395,6 +421,7 @@ namespace Scheduler.Tests.xUnit
                     TimeEnd = new TimeSpan(8, 0, 0)
                 }
             };
+
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
             Assert.Equal("If the configuration is Daily Frecuency, you should add Start and End Time.", exception.Message);
         }
@@ -403,6 +430,7 @@ namespace Scheduler.Tests.xUnit
         public void validation_configuration_daily_frecuency_without_time_end()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -418,6 +446,7 @@ namespace Scheduler.Tests.xUnit
                     TimeStart = new TimeSpan(4, 0, 0)
                 }
             };
+
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
             string expectedText = "If the configuration is Daily Frecuency, you should add Start and End Time.";
             Assert.Equal(expectedText, exception.Message);
@@ -427,6 +456,7 @@ namespace Scheduler.Tests.xUnit
         public void validation_configuration_daily_frecuency_without_time_start_and_time_end()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -441,6 +471,7 @@ namespace Scheduler.Tests.xUnit
                     OccurrenceAmount = 2
                 }
             };
+
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
             string expectedText = "If the configuration is Daily Frecuency, you should add Start and End Time.";
             Assert.Equal(expectedText, exception.Message);
@@ -450,6 +481,7 @@ namespace Scheduler.Tests.xUnit
         public void validation_monthly_configuration_day_8_every_3_months()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -491,54 +523,10 @@ namespace Scheduler.Tests.xUnit
         }
 
         [Fact]
-        public void validation_monthly_configuration_the_first_thursday_of_every_3_months()
-        {
-            DateTime dateTime = new DateTime(2020, 1, 1);
-            Configuration configuration = new Configuration()
-            {
-                CurrentDate = dateTime,
-                Type = Enumerations.Type.Recurring,
-                OccurrenceAmount = 1,
-                Occurrence = Enumerations.Occurrence.Monthly,
-                LimitEndDate = new DateTime(2099, 1, 1),
-                DailyFrecuencyConfiguration = new DailyFrecuency()
-                {
-                    Type = Enumerations.Type.Recurring,
-                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
-                    OccurrenceAmount = 1,
-                    TimeStart = new TimeSpan(3, 0, 0),
-                    TimeEnd = new TimeSpan(6, 0, 0)
-                },
-                MonthlyConfiguration = new MonthlyConfiguration()
-                {
-                    SomeDay = true,
-                    Frecuency = Enumerations.Frecuency.First,
-                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Thursday,
-                    SomeDayMonthFrecuency = 3
-                }
-            };
-
-            CalculationResult[] results = GetResults(configuration, 9);
-            Assert.Equal(results[0].NextExecutionTime, new DateTime(2020, 1, 2, 3, 0, 0));
-            Assert.Equal(results[1].NextExecutionTime, new DateTime(2020, 1, 2, 4, 0, 0));
-            Assert.Equal(results[2].NextExecutionTime, new DateTime(2020, 1, 2, 5, 0, 0));
-            Assert.Equal(results[3].NextExecutionTime, new DateTime(2020, 1, 2, 6, 0, 0));
-            Assert.Equal(results[4].NextExecutionTime, new DateTime(2020, 4, 2, 3, 0, 0));
-            Assert.Equal(results[5].NextExecutionTime, new DateTime(2020, 4, 2, 4, 0, 0));
-            Assert.Equal(results[6].NextExecutionTime, new DateTime(2020, 4, 2, 5, 0, 0));
-            Assert.Equal(results[7].NextExecutionTime, new DateTime(2020, 4, 2, 6, 0, 0));
-            Assert.Equal(results[8].NextExecutionTime, new DateTime(2020, 7, 2, 3, 0, 0));
-
-
-            string description = results[0].Description;
-            string expectedText = "Occurs the first thursday of every 3 months every 1 hour between 3:00 am and 6:00 am starting on 01/01/2020";
-            Assert.Equal(expectedText, description);
-        }
-
-        [Fact]
         public void validation_monthly_configuration_the_second_weekend_day_of_every_month()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -587,6 +575,7 @@ namespace Scheduler.Tests.xUnit
         public void description_monthly_configuration_the_first_thursday_of_every_3_months()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -621,6 +610,7 @@ namespace Scheduler.Tests.xUnit
         public void validate_not_concrete_day_and_some_day_same_time()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -655,6 +645,7 @@ namespace Scheduler.Tests.xUnit
         public void validate_concrete_day_filled_properties_day_number()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -686,6 +677,7 @@ namespace Scheduler.Tests.xUnit
         public void validate_concrete_day_filled_properties_month_frecuency()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -717,6 +709,7 @@ namespace Scheduler.Tests.xUnit
         public void validate_some_day_filled_properties_frecuency()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -749,6 +742,7 @@ namespace Scheduler.Tests.xUnit
         public void validate_some_day_filled_properties_weekday()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -772,6 +766,7 @@ namespace Scheduler.Tests.xUnit
                 }
             };
 
+
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
             string expectedText = "You should insert Weekday if you set Some Day.";
             Assert.Equal(expectedText, exception.Message);
@@ -781,6 +776,7 @@ namespace Scheduler.Tests.xUnit
         public void validate_some_day_filled_properties_month_frecuency()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -810,9 +806,103 @@ namespace Scheduler.Tests.xUnit
         }
 
         [Fact]
+        public void calculate_once_daily_10_times()
+        {
+            DateTime dateTime = new DateTime(2022, 1, 1);
+
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Once,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Daily,
+                LimitEndDate = new DateTime(2022, 12, 1)
+            };
+
+            CalculationResult[] results = GetResults(configuration, 10);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2022, 1, 2, 0, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2022, 1, 3, 0, 0, 0));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2022, 1, 4, 0, 0, 0));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2022, 1, 5, 0, 0, 0));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2022, 1, 6, 0, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2022, 1, 7, 0, 0, 0));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2022, 1, 8, 0, 0, 0));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2022, 1, 9, 0, 0, 0));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2022, 1, 10, 0, 0, 0));
+            Assert.Equal(results[9].NextExecutionTime, new DateTime(2022, 1, 11, 0, 0, 0));
+
+            string description = results[0].Description;
+            string expectedText = "Occurs once. Schedule will be used on 02/01/2022 at 00:00 ending on 01/12/2022";
+            Assert.Equal(expectedText, description);
+        }
+
+        [Fact]
+        public void calculate_once_monthly_10_times()
+        {
+            DateTime dateTime = new DateTime(2022, 1, 1);
+
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Once,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2022, 12, 1)
+            };
+
+            CalculationResult[] results = GetResults(configuration, 10);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2022, 2, 1, 0, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2022, 3, 1, 0, 0, 0));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2022, 4, 1, 0, 0, 0));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2022, 5, 1, 0, 0, 0));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2022, 6, 1, 0, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2022, 7, 1, 0, 0, 0));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2022, 8, 1, 0, 0, 0));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2022, 9, 1, 0, 0, 0));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2022, 10, 1, 0, 0, 0));
+            Assert.Equal(results[9].NextExecutionTime, new DateTime(2022, 11, 1, 0, 0, 0));
+
+            string description = results[0].Description;
+            string expectedText = "Occurs once. Schedule will be used on 01/02/2022 at 00:00 ending on 01/12/2022";
+            Assert.Equal(expectedText, description);
+        }
+
+        [Fact]
+        public void calculate_once_weekly_10_times()
+        {
+            DateTime dateTime = new DateTime(2022, 1, 1);
+
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Once,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Weekly,
+                LimitEndDate = new DateTime(2022, 12, 1)
+            };
+
+            CalculationResult[] results = GetResults(configuration, 10);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2022, 1, 8, 0, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2022, 1, 15, 0, 0, 0));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2022, 1, 22, 0, 0, 0));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2022, 1, 29, 0, 0, 0));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2022, 2, 5, 0, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2022, 2, 12, 0, 0, 0));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2022, 2, 19, 0, 0, 0));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2022, 2, 26, 0, 0, 0));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2022, 3, 5, 0, 0, 0));
+            Assert.Equal(results[9].NextExecutionTime, new DateTime(2022, 3, 12, 0, 0, 0));
+
+            string description = results[0].Description;
+            string expectedText = "Occurs once. Schedule will be used on 08/01/2022 at 00:00 ending on 01/12/2022";
+            Assert.Equal(expectedText, description);
+        }
+
+        [Fact]
         public void validate_some_day_filled_properties_month_frecuency_negative()
         {
             DateTime dateTime = new DateTime(2020, 1, 1);
+
             Configuration configuration = new Configuration()
             {
                 CurrentDate = dateTime,
@@ -840,6 +930,597 @@ namespace Scheduler.Tests.xUnit
             var exception = Assert.Throws<Exception>(() => Scheduler.GenerateDate(configuration));
             string expectedText = "You should insert positive Month Frecuency.";
             Assert.Equal(expectedText, exception.Message);
+        }
+
+        [Fact]
+        public void calculate_recurring_monthly_and_daily_monday_every_2_hours_starting_at_4am_to_8am()
+        {
+            DateTime dateTime = new DateTime(2022, 1, 1);
+
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2022, 2, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 2,
+                    TimeStart = new TimeSpan(4, 0, 0),
+                    TimeEnd = new TimeSpan(8, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    Frecuency = Enumerations.Frecuency.Second,
+                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Monday,
+                    SomeDayMonthFrecuency = 2
+                }
+            };
+
+            CalculationResult[] results = GetResults(configuration, 10);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2022, 1, 10, 4, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2022, 1, 10, 6, 0, 0));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2022, 1, 10, 8, 0, 0));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2022, 3, 14, 4, 0, 0));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2022, 3, 14, 6, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2022, 3, 14, 8, 0, 0));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2022, 5, 9, 4, 0, 0));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2022, 5, 9, 6, 0, 0));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2022, 5, 9, 8, 0, 0));
+            Assert.Equal(results[9].NextExecutionTime, new DateTime(2022, 7, 11, 4, 0, 0));
+
+            string description = results[0].Description;
+            string expectedText = "Occurs the second monday of every 2 months every 2 hours between 4:00 am and 8:00 am starting on 01/01/2022";
+            Assert.Equal(expectedText, description);
+        }
+
+        [Fact]
+        public void calculate_recurring_weekly_and_daily_saturday_every_4_hours_starting_at_4am_to_4pm()
+        {
+            DateTime dateTime = new DateTime(2022, 1, 1);
+
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Weekly,
+                LimitEndDate = new DateTime(2022, 2, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 4,
+                    TimeStart = new TimeSpan(4, 0, 0),
+                    TimeEnd = new TimeSpan(16, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    Frecuency = Enumerations.Frecuency.Second,
+                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Saturday,
+                    SomeDayMonthFrecuency = 2
+                }
+            };
+
+            CalculationResult[] results = GetResults(configuration, 10);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2022, 1, 1, 4, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2022, 1, 1, 8, 0, 0));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2022, 1, 1, 12, 0, 0));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2022, 1, 1, 16, 0, 0));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2022, 3, 12, 4, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2022, 3, 12, 8, 0, 0));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2022, 3, 12, 12, 0, 0));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2022, 3, 12, 16, 0, 0));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2022, 5, 14, 4, 0, 0));
+            Assert.Equal(results[9].NextExecutionTime, new DateTime(2022, 5, 14, 8, 0, 0));
+
+            string description = results[0].Description;
+            string expectedText = "Occurs the second saturday of every 2 months every 4 hours between 4:00 am and 4:00 pm starting on 01/01/2022";
+            Assert.Equal(expectedText, description);
+        }
+
+        [Fact]
+        public void validation_monthly_configuration_the_last_weekend_day_of_every_month()
+        {
+            DateTime dateTime = new DateTime(2020, 1, 1);
+
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    Frecuency = Enumerations.Frecuency.Last,
+                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Weekend,
+                    SomeDayMonthFrecuency = 1
+                }
+            };
+
+            CalculationResult[] results = GetResults(configuration, 12);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2020, 1, 26, 0, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2020, 1, 26, 3, 0, 0));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2020, 1, 26, 4, 0, 0));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2020, 1, 26, 5, 0, 0));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2020, 1, 26, 6, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2020, 1, 26, 0, 0, 0));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2020, 1, 26, 3, 0, 0));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2020, 1, 26, 4, 0, 0));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2020, 1, 26, 5, 0, 0));
+            Assert.Equal(results[9].NextExecutionTime, new DateTime(2020, 1, 26, 6, 0, 0));
+            Assert.Equal(results[10].NextExecutionTime, new DateTime(2020, 1, 26, 0, 0, 0));
+            Assert.Equal(results[11].NextExecutionTime, new DateTime(2020, 1, 26, 3, 0, 0));
+
+            string description = results[0].Description;
+            string expectedText = "Occurs the last weekend of every 1 months every 1 hour between 3:00 am and 6:00 am starting on 01/01/2020";
+            Assert.Equal(expectedText, description);
+        }
+
+        [Fact]
+        public void description_monthly_configuration_the_first_thursday_of_every_3_months_with_extreme_number_repetitions()
+        {
+            DateTime dateTime = new DateTime(2020, 1, 1);
+
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    Frecuency = Enumerations.Frecuency.First,
+                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Thursday,
+                    SomeDayMonthFrecuency = 3
+                }
+            };
+
+            CalculationResult[] results = GetResults(configuration, 1000);
+            Assert.Equal(results[999].NextExecutionTime, new DateTime(2082, 4, 2, 6, 0, 0));
+
+            string description = results[999].Description;
+            string expectedText = "Occurs the first thursday of every 3 months every 1 hour between 3:00 am and 6:00 am starting on 02/04/2082";
+            Assert.Equal(expectedText, description);
+        }
+
+        [Fact]
+        public void validation_monthly_configuration_the_first_monday_of_every_3_months()
+        {
+            DateTime dateTime = new DateTime(2020, 1, 1);
+
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    Frecuency = Enumerations.Frecuency.First,
+                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Monday,
+                    SomeDayMonthFrecuency = 3
+                }
+            };
+
+            CalculationResult[] results = GetResults(configuration, 9);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2020, 1, 6, 3, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2020, 1, 6, 4, 0, 0));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2020, 1, 6, 5, 0, 0));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2020, 1, 6, 6, 0, 0));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2020, 4, 6, 3, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2020, 4, 6, 4, 0, 0));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2020, 4, 6, 5, 0, 0));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2020, 4, 6, 6, 0, 0));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2020, 7, 6, 3, 0, 0));
+
+
+            string description = results[0].Description;
+            string expectedText = "Occurs the first monday of every 3 months every 1 hour between 3:00 am and 6:00 am starting on 01/01/2020";
+            Assert.Equal(expectedText, description);
+        }
+
+        [Fact]
+        public void validation_monthly_configuration_the_first_thursday_of_every_3_months()
+        {
+            DateTime dateTime = new DateTime(2020, 1, 1);
+
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    Frecuency = Enumerations.Frecuency.First,
+                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Thursday,
+                    SomeDayMonthFrecuency = 3
+                }
+            };
+
+            CalculationResult[] results = GetResults(configuration, 9);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2020, 1, 2, 3, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2020, 1, 2, 4, 0, 0));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2020, 1, 2, 5, 0, 0));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2020, 1, 2, 6, 0, 0));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2020, 4, 2, 3, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2020, 4, 2, 4, 0, 0));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2020, 4, 2, 5, 0, 0));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2020, 4, 2, 6, 0, 0));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2020, 7, 2, 3, 0, 0));
+
+
+            string description = results[0].Description;
+            string expectedText = "Occurs the first thursday of every 3 months every 1 hour between 3:00 am and 6:00 am starting on 01/01/2020";
+            Assert.Equal(expectedText, description);
+        }
+
+        [Fact]
+        public void validation_monthly_configuration_the_first_wednesday_of_every_3_months()
+        {
+            DateTime dateTime = new DateTime(2020, 1, 1);
+
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    Frecuency = Enumerations.Frecuency.First,
+                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Wednesday,
+                    SomeDayMonthFrecuency = 3
+                }
+            };
+
+            CalculationResult[] results = GetResults(configuration, 9);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2020, 1, 1, 3, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2020, 1, 1, 4, 0, 0));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2020, 1, 1, 5, 0, 0));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2020, 1, 1, 6, 0, 0));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2020, 4, 1, 3, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2020, 4, 1, 4, 0, 0));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2020, 4, 1, 5, 0, 0));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2020, 4, 1, 6, 0, 0));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2020, 7, 1, 3, 0, 0));
+
+
+            string description = results[0].Description;
+            string expectedText = "Occurs the first wednesday of every 3 months every 1 hour between 3:00 am and 6:00 am starting on 01/01/2020";
+            Assert.Equal(expectedText, description);
+        }
+
+        [Fact]
+        public void validation_monthly_configuration_the_first_Tuesday_of_every_3_months()
+        {
+            DateTime dateTime = new DateTime(2020, 1, 1);
+
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    Frecuency = Enumerations.Frecuency.First,
+                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Tuesday,
+                    SomeDayMonthFrecuency = 3
+                }
+            };
+
+            CalculationResult[] results = GetResults(configuration, 9);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2020, 1, 7, 3, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2020, 1, 7, 4, 0, 0));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2020, 1, 7, 5, 0, 0));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2020, 1, 7, 6, 0, 0));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2020, 4, 7, 3, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2020, 4, 7, 4, 0, 0));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2020, 4, 7, 5, 0, 0));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2020, 4, 7, 6, 0, 0));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2020, 7, 7, 3, 0, 0));
+
+
+            string description = results[0].Description;
+            string expectedText = "Occurs the first tuesday of every 3 months every 1 hour between 3:00 am and 6:00 am starting on 01/01/2020";
+            Assert.Equal(expectedText, description);
+        }
+
+        [Fact]
+        public void validation_monthly_configuration_the_first_friday_of_every_3_months()
+        {
+            DateTime dateTime = new DateTime(2020, 1, 1);
+
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    Frecuency = Enumerations.Frecuency.First,
+                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Friday,
+                    SomeDayMonthFrecuency = 3
+                }
+            };
+
+            CalculationResult[] results = GetResults(configuration, 9);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2020, 1, 3, 3, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2020, 1, 3, 4, 0, 0));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2020, 1, 3, 5, 0, 0));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2020, 1, 3, 6, 0, 0));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2020, 4, 3, 3, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2020, 4, 3, 4, 0, 0));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2020, 4, 3, 5, 0, 0));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2020, 4, 3, 6, 0, 0));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2020, 7, 3, 3, 0, 0));
+
+
+            string description = results[0].Description;
+            string expectedText = "Occurs the first friday of every 3 months every 1 hour between 3:00 am and 6:00 am starting on 01/01/2020";
+            Assert.Equal(expectedText, description);
+        }
+
+        [Fact]
+        public void validation_monthly_configuration_the_first_saturday_of_every_3_months()
+        {
+            DateTime dateTime = new DateTime(2020, 1, 1);
+
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    Frecuency = Enumerations.Frecuency.First,
+                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Saturday,
+                    SomeDayMonthFrecuency = 3
+                }
+            };
+
+            CalculationResult[] results = GetResults(configuration, 9);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2020, 1, 4, 3, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2020, 1, 4, 4, 0, 0));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2020, 1, 4, 5, 0, 0));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2020, 1, 4, 6, 0, 0));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2020, 4, 4, 3, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2020, 4, 4, 4, 0, 0));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2020, 4, 4, 5, 0, 0));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2020, 4, 4, 6, 0, 0));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2020, 7, 4, 3, 0, 0));
+
+
+            string description = results[0].Description;
+            string expectedText = "Occurs the first saturday of every 3 months every 1 hour between 3:00 am and 6:00 am starting on 01/01/2020";
+            Assert.Equal(expectedText, description);
+        }
+
+        [Fact]
+        public void validation_monthly_configuration_the_first_sunday_of_every_3_months()
+        {
+            DateTime dateTime = new DateTime(2020, 1, 1);
+
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    Frecuency = Enumerations.Frecuency.First,
+                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Sunday,
+                    SomeDayMonthFrecuency = 3
+                }
+            };
+
+            CalculationResult[] results = GetResults(configuration, 9);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2020, 1, 5, 3, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2020, 1, 5, 4, 0, 0));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2020, 1, 5, 5, 0, 0));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2020, 1, 5, 6, 0, 0));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2020, 4, 5, 3, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2020, 4, 5, 4, 0, 0));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2020, 4, 5, 5, 0, 0));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2020, 4, 5, 6, 0, 0));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2020, 7, 5, 3, 0, 0));
+
+
+            string description = results[0].Description;
+            string expectedText = "Occurs the first sunday of every 3 months every 1 hour between 3:00 am and 6:00 am starting on 01/01/2020";
+            Assert.Equal(expectedText, description);
+        }
+
+        [Fact]
+        public void validation_monthly_configuration_the_first_weekday_of_every_3_months()
+        {
+            DateTime dateTime = new DateTime(2020, 1, 1);
+
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    Frecuency = Enumerations.Frecuency.First,
+                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Weekday,
+                    SomeDayMonthFrecuency = 3
+                }
+            };
+
+            CalculationResult[] results = GetResults(configuration, 9);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2020, 1, 1, 3, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2020, 1, 1, 4, 0, 0));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2020, 1, 1, 5, 0, 0));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2020, 1, 1, 6, 0, 0));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2020, 4, 1, 3, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2020, 4, 1, 4, 0, 0));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2020, 4, 1, 5, 0, 0));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2020, 4, 1, 6, 0, 0));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2020, 7, 1, 3, 0, 0));
+
+
+            string description = results[0].Description;
+            string expectedText = "Occurs the first weekday of every 3 months every 1 hour between 3:00 am and 6:00 am starting on 01/01/2020";
+            Assert.Equal(expectedText, description);
+        }
+
+        [Fact]
+        public void validation_monthly_configuration_the_first_weekend_of_every_3_months()
+        {
+            DateTime dateTime = new DateTime(2020, 1, 1);
+
+            Configuration configuration = new Configuration()
+            {
+                CurrentDate = dateTime,
+                Type = Enumerations.Type.Recurring,
+                OccurrenceAmount = 1,
+                Occurrence = Enumerations.Occurrence.Monthly,
+                LimitEndDate = new DateTime(2099, 1, 1),
+                DailyFrecuencyConfiguration = new DailyFrecuency()
+                {
+                    Type = Enumerations.Type.Recurring,
+                    DailyOccurrence = Enumerations.DailyOccurrence.Hours,
+                    OccurrenceAmount = 1,
+                    TimeStart = new TimeSpan(3, 0, 0),
+                    TimeEnd = new TimeSpan(6, 0, 0)
+                },
+                MonthlyConfiguration = new MonthlyConfiguration()
+                {
+                    SomeDay = true,
+                    Frecuency = Enumerations.Frecuency.First,
+                    MonthlyConfigurationWeekDay = Enumerations.MonthlyConfigurationWeekDay.Weekend,
+                    SomeDayMonthFrecuency = 3
+                }
+            };
+
+            CalculationResult[] results = GetResults(configuration, 9);
+            Assert.Equal(results[0].NextExecutionTime, new DateTime(2020, 1, 4, 3, 0, 0));
+            Assert.Equal(results[1].NextExecutionTime, new DateTime(2020, 1, 4, 4, 0, 0));
+            Assert.Equal(results[2].NextExecutionTime, new DateTime(2020, 1, 4, 5, 0, 0));
+            Assert.Equal(results[3].NextExecutionTime, new DateTime(2020, 1, 4, 6, 0, 0));
+            Assert.Equal(results[4].NextExecutionTime, new DateTime(2020, 4, 4, 3, 0, 0));
+            Assert.Equal(results[5].NextExecutionTime, new DateTime(2020, 4, 4, 4, 0, 0));
+            Assert.Equal(results[6].NextExecutionTime, new DateTime(2020, 4, 4, 5, 0, 0));
+            Assert.Equal(results[7].NextExecutionTime, new DateTime(2020, 4, 4, 6, 0, 0));
+            Assert.Equal(results[8].NextExecutionTime, new DateTime(2020, 7, 4, 3, 0, 0));
+
+
+            string description = results[0].Description;
+            string expectedText = "Occurs the first weekend of every 3 months every 1 hour between 3:00 am and 6:00 am starting on 01/01/2020";
+            Assert.Equal(expectedText, description);
         }
 
         private CalculationResult[] GetResults(Configuration configuration, int numberOfResults)
