@@ -325,56 +325,6 @@ namespace Scheduler.Tests.xUnit
             Assert.Equal(ExpectedText, description);
         }
 
-
-        [Fact]
-        public void getweekday_method_test_Monday()
-        {
-            var weekDay = Scheduler.GetWeekDay(DayOfWeek.Monday);
-            Assert.Equal(Enumerations.Weekday.Monday, weekDay);
-        }
-
-        [Fact]
-        public void getweekday_method_test_Tuesday()
-        {
-            var weekDay = Scheduler.GetWeekDay(DayOfWeek.Tuesday);
-            Assert.Equal(Enumerations.Weekday.Tuesday, weekDay);
-        }
-
-        [Fact]
-        public void getweekday_method_test_Wednesday()
-        {
-            var weekDay = Scheduler.GetWeekDay(DayOfWeek.Wednesday);
-            Assert.Equal(Enumerations.Weekday.Wednesday, weekDay);
-        }
-
-        [Fact]
-        public void getweekday_method_test_Thursday()
-        {
-            var weekDay = Scheduler.GetWeekDay(DayOfWeek.Thursday);
-            Assert.Equal(Enumerations.Weekday.Thursday, weekDay);
-        }
-
-        [Fact]
-        public void getweekday_method_test_Friday()
-        {
-            var weekDay = Scheduler.GetWeekDay(DayOfWeek.Friday);
-            Assert.Equal(Enumerations.Weekday.Friday, weekDay);
-        }
-
-        [Fact]
-        public void getweekday_method_test_Saturday()
-        {
-            var weekDay = Scheduler.GetWeekDay(DayOfWeek.Saturday);
-            Assert.Equal(Enumerations.Weekday.Saturday, weekDay);
-        }
-
-        [Fact]
-        public void getweekday_method_test_Sunday()
-        {
-            var weekDay = Scheduler.GetWeekDay(DayOfWeek.Sunday);
-            Assert.Equal(Enumerations.Weekday.Sunday, weekDay);
-        }
-
         [Fact]
         public void validation_configuration_not_null()
         {
@@ -1533,5 +1483,13 @@ namespace Scheduler.Tests.xUnit
             }
             return results;
         }
+
+
+
+        // Probar validación con fechas para comprobar el orden del mes.
+
+        // Probar una misma validación en los tres idiomas.
+
+        // Probar una validación con el idioma por defecto (esES).
     }
 }

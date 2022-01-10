@@ -7,6 +7,7 @@ namespace Scheduler
     {
         public static CalculationResult GenerateDate(Configuration configuration)
         {
+            if (configuration.Language == null) { configuration.Language = new Language(); }
             Scheduler.ValidateConfiguration(configuration);
             return Scheduler.CalculateNextDate(configuration);
         }
@@ -449,7 +450,7 @@ namespace Scheduler
         {
             if (configuration == null)
             {
-                throw new Exception("The parameter Configuration should not be null.");
+                throw new Exception(configuration.Resources.TheParameterConfigurationShouldNotBeNull);
             }
         }
 
@@ -457,7 +458,7 @@ namespace Scheduler
         {
             if (configuration.Type == Enumerations.Type.Recurring && configuration.LimitEndDate == null)
             {
-                throw new Exception("If the configuration is Recurring, you should add Limit End Date.");
+                throw new Exception(configuration.Resources.ShouldLimitEndDate);
             }
             if (configuration.DailyFrecuencyConfiguration != null && configuration.DailyFrecuencyConfiguration.OccurrenceAmount != 0 &&
                 (configuration.DailyFrecuencyConfiguration.TimeStart == null || configuration.DailyFrecuencyConfiguration.TimeEnd == null))
@@ -509,28 +510,6 @@ namespace Scheduler
                 chars = chars.Substring(1, chars.Length - 1);
             }
             return chars;
-        }
-
-        public static Enumerations.Weekday GetWeekDay(DayOfWeek dayOfWeek)
-        {
-            switch (dayOfWeek)
-            {
-                case DayOfWeek.Monday:
-                    return Enumerations.Weekday.Monday;
-                case DayOfWeek.Tuesday:
-                    return Enumerations.Weekday.Tuesday;
-                case DayOfWeek.Wednesday:
-                    return Enumerations.Weekday.Wednesday;
-                case DayOfWeek.Thursday:
-                    return Enumerations.Weekday.Thursday;
-                case DayOfWeek.Friday:
-                    return Enumerations.Weekday.Friday;
-                case DayOfWeek.Saturday:
-                    return Enumerations.Weekday.Saturday;
-                case DayOfWeek.Sunday:
-                default:
-                    return Enumerations.Weekday.Sunday;
-            }
         }
 
         private class DateCalculation

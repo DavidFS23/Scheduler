@@ -5,6 +5,16 @@ namespace Scheduler
 {
     public class Configuration
     {
+        public Language Language { get; set; }
+        public Resources Resources 
+        { 
+            get
+            {
+                if (Language == null) { return null; }
+                return Language.Resources;               
+            } 
+        }
+
         public DateTime CurrentDate { get; set; }
         public Enumerations.Type Type { get; set; }
         public DateTime? DateTime { get; }
