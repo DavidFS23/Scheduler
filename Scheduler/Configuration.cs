@@ -5,12 +5,16 @@ namespace Scheduler
 {
     public class Configuration
     {
+        public Configuration()
+        {
+            Language = new Language();
+        }
+
         public Language Language { get; set; }
         public Resources Resources 
         { 
             get
             {
-                if (Language == null) { return null; }
                 return Language.Resources;               
             } 
         }
@@ -24,9 +28,33 @@ namespace Scheduler
         public DateTime? LimitStartDate { get; set; }
         public DateTime? LimitEndDate { get; set; }
 
-        public DailyFrecuency DailyFrecuencyConfiguration { get; set; }
+        private DailyFrecuency dailyFrecuencyConfiguration;
+        public DailyFrecuency DailyFrecuencyConfiguration 
+        {
+            get
+            {
+                return dailyFrecuencyConfiguration;
+            }
+            set
+            {
+                dailyFrecuencyConfiguration = value;
+                dailyFrecuencyConfiguration.BaseConfiguration = this;
+            }
+        }
 
-        public MonthlyConfiguration MonthlyConfiguration { get; set; }
+        private MonthlyConfiguration monthlyConfiguration;
+        public MonthlyConfiguration MonthlyConfiguration 
+        {
+            get
+            {
+                return monthlyConfiguration;
+            }
+            set
+            {
+                monthlyConfiguration = value;
+                monthlyConfiguration.BaseConfiguration = this;
+            }
+        }
 
     }
 
@@ -40,6 +68,7 @@ namespace Scheduler
         public TimeSpan? TimeStart { get; set; }
         public TimeSpan? TimeEnd { get; set; }
 
+        public Configuration BaseConfiguration { get; set; }
     }
 
     public class MonthlyConfiguration
@@ -53,6 +82,7 @@ namespace Scheduler
         public MonthlyConfigurationWeekDay? MonthlyConfigurationWeekDay { get; set; }
         public int SomeDayMonthFrecuency { get; set; }
 
+        public Configuration BaseConfiguration { get; set; }
     }
 
 }
